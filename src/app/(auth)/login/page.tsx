@@ -1,45 +1,55 @@
 "use client";
 
+import { LoginRequestSchema } from "@/app/dto/auth-dto";
 import CardHeaderAuth from "@/components/auth/card_header";
 import SeparatorAuth from "@/components/auth/separator";
-import { Button } from "@/components/ui/button";
+import { ButtonLoading } from "@/components/ui/button-loading";
 import { CardContent } from "@/components/ui/card";
 import { Field, FieldGroup } from "@/components/ui/field";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { HttpMethod, Mutation } from "@/utils/tanstack";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 
-const loginSchema = z.object({
-  email: z.email(),
-  password: z.string().min(8, {
-    error: "password minimum 8 character",
-  }),
-});
-
-const defaultValues = {
+const defaultValues: z.infer<typeof LoginRequestSchema> = {
   email: "",
   password: "",
 };
 
 export default function LoginPage() {
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<z.infer<typeof LoginRequestSchema>>({
+    resolver: zodResolver(LoginRequestSchema),
     defaultValues,
   });
 
-  const onSubmit = (values: z.infer<typeof loginSchema>) => {
-    console.log(values);
+  const router = useRouter();
+
+  const { mutate, data, isPending, isSuccess } = Mutation(["adminLogin"], true);
+
+  const onSubmit = (values: z.infer<typeof LoginRequestSchema>) => {
+    mutate({
+      body: values,
+      method: HttpMethod.POST,
+      url: "/admin/login",
+    });
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      router.push("/dashboard");
+    }
+  }, [isSuccess, data]);
 
   return (
     <>
@@ -94,7 +104,7 @@ export default function LoginPage() {
                 />
               </Field>
               <Field>
-                <Button type="submit">Submit</Button>
+                <ButtonLoading isLoading={isPending} label="Submit" />
               </Field>
             </FieldGroup>
           </form>
