@@ -12,17 +12,27 @@ export const navigation: sidebarMenu[] = [
   },
   {
     label: "Order",
-    icon: "lucide:layout-dashboard",
+    icon: "tabler:transaction-dollar",
     url: "/order",
   },
   {
-    label: "Inventory",
-    icon: "lucide:layout-dashboard",
+    label: "Inventaris",
+    icon: "material-symbols:inventory-rounded",
     url: "/inventory",
   },
   {
-    label: "Santri",
-    icon: "lucide:layout-dashboard",
-    url: "/santri",
+    label: "Pelanggan",
+    icon: "carbon:customer",
+    url: "/customer",
+  },
+  {
+    label: "Daftar Layanan",
+    icon: "fluent-mdl2:product",
+    url: "/service-list",
+  },
+  {
+    label: "Bulanan Santri",
+    icon: "material-symbols:finance-chip-outline",
+    url: "/monthly-money",
   },
 ];

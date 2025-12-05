@@ -17,3 +17,11 @@ export const CreateToken = (v: CreateToken): Promise<string> => {
     .setExpirationTime(v.exp)
     .sign(secret);
 };
+
+export const VerifyJwt = (token: string) => {
+  return jose.jwtVerify(token, secret);
+};
+
+export const DecodeJwt = (token: string) => {
+  return jose.decodeJwt(token);
+};

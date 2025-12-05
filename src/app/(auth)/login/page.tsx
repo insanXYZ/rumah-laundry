@@ -41,12 +41,13 @@ export default function LoginPage() {
     mutate({
       body: values,
       method: HttpMethod.POST,
-      url: "/admin/login",
+      url: "/admins/login",
     });
   };
 
   useEffect(() => {
     if (isSuccess) {
+      router.refresh();
       router.push("/dashboard");
     }
   }, [isSuccess, data]);
@@ -54,8 +55,8 @@ export default function LoginPage() {
   return (
     <>
       <CardHeaderAuth
-        title="Welcome Back"
-        description="Login with your account!!!"
+        title="Selamat datang"
+        description="Masuk dengan akun anda!!!"
       />
       <SeparatorAuth />
       <CardContent>
@@ -95,9 +96,6 @@ export default function LoginPage() {
                           {...field}
                         />
                       </FormControl>
-                      {/* <FormDescription>
-                  This is your public display name.
-                </FormDescription> */}
                       <FormMessage />
                     </FormItem>
                   )}

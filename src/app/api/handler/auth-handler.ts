@@ -1,10 +1,11 @@
-import { LoginRequestSchema } from "@/app/dto/auth-dto";
+import { Admin, LoginRequestSchema } from "@/app/dto/auth-dto";
 import db from "@/db";
 import { adminsTable } from "@/db/schema";
 import { ResponseErr, ResponseOk } from "@/utils/http";
-import { CreateToken } from "@/utils/jwt";
+import { CreateToken, DecodeJwt } from "@/utils/jwt";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 // POST /admin/login
@@ -30,19 +31,57 @@ export const LoginHandler = async (request: NextRequest) => {
     }
 
     const accessToken = await CreateToken({
-      exp: "15m",
+      exp: "360d",
       payload: {
         sub: admin.id.toString(),
       },
     });
 
-    return ResponseOk(
+    const response = ResponseOk(
       {
         access_token: accessToken,
       },
       "berhasil masuk"
     );
+
+    response.cookies.set("X-ACC-TOKEN", accessToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 360,
+    });
+
+    return response;
   } catch (err) {
     return ResponseErr("email atau password salah", err);
   }
 };
+
+export async function MeHandler(req: NextRequest) {
+  try {
+    const token = req.cookies.get("X-ACC-TOKEN")?.value;
+
+    if (!token) {
+      return ResponseErr("gagal mendapatkan informasi user", null);
+    }
+
+    const claims = DecodeJwt(token);
+
+    const admins = await db
+      .select()
+      .from(adminsTable)
+      .where(eq(adminsTable.id, Number(claims.sub)));
+
+    let valAdmin = admins[0];
+
+    const admin: Admin = {
+      id: valAdmin.id,
+      email: valAdmin.email,
+      name: valAdmin.name,
+    };
+
+    return ResponseOk(admin, "sukses mendapatkan informasi user");
+  } catch (error) {
+    return ResponseErr("gagal mendapatkan informasi user", error);
+  }
+}

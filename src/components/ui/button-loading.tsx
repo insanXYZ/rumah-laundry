@@ -8,9 +8,9 @@ interface ButtonLoading {
   isLoading: boolean;
 }
 
-export function ButtonLoading({ label, isLoading }: ButtonLoading) {
+export function ButtonLoading({ label, isLoading, ...props }: ButtonLoading) {
   return (
-    <Button disabled={isLoading}>
+    <Button disabled={isLoading} {...props}>
       {isLoading ? <Spinner color="white" /> : null}
       {label}
     </Button>
