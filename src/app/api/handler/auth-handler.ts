@@ -1,4 +1,8 @@
-import { Admin, LoginRequestSchema } from "@/app/dto/auth-dto";
+import {
+  Admin,
+  EditAccountSchema,
+  LoginRequestSchema,
+} from "@/app/dto/admin-dto";
 import db from "@/db";
 import { adminsTable } from "@/db/schema";
 import { ResponseErr, ResponseOk } from "@/utils/http";
@@ -83,5 +87,25 @@ export async function MeHandler(req: NextRequest) {
     return ResponseOk(admin, "sukses mendapatkan informasi user");
   } catch (error) {
     return ResponseErr("gagal mendapatkan informasi user", error);
+  }
+}
+
+export async function EditAdminHandler(req: NextRequest, id: string) {
+  try {
+    const json = await req.json();
+    const body = EditAccountSchema.parse(json);
+
+    await db
+      .update(adminsTable)
+      .set({
+        email: body.email,
+        name: body.name,
+        password: bcrypt.hashSync(body.password),
+      })
+      .where(eq(adminsTable.id, Number(id)));
+
+    return ResponseOk(null, "sukses merubah akun admin");
+  } catch (error) {
+    return ResponseErr("gagal merubah akun admin", error);
   }
 }

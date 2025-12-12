@@ -1,5 +1,7 @@
 import z from "zod";
 
+export const acceptedStatusOrder: string[] = ["proses", "beres"];
+
 export interface OrderItem {
   id?: number;
   order_id: number;
@@ -10,10 +12,11 @@ export interface OrderItem {
   total_price: number;
 }
 
-export interface ListOrders {
+export interface ListOrder {
   id: number;
   customer_id: number;
   status: string;
+  created_at: Date;
   name: string;
   order_items: OrderItem[];
 }
@@ -24,7 +27,6 @@ export const AddOrderSchema = z.object({
     .array(
       z.object({
         product_id: z.string(),
-        unit: z.string().optional(),
         quantity: z.number(),
       })
     )

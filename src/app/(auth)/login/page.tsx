@@ -1,6 +1,6 @@
 "use client";
 
-import { LoginRequestSchema } from "@/app/dto/auth-dto";
+import { LoginRequestSchema } from "@/app/dto/admin-dto";
 import CardHeaderAuth from "@/components/auth/card_header";
 import SeparatorAuth from "@/components/auth/separator";
 import { ButtonLoading } from "@/components/ui/button-loading";

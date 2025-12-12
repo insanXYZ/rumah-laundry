@@ -18,10 +18,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useEffect, useState } from "react";
+import { Badge } from "./badge";
 
 export interface ItemCombobox {
   value: string;
   label: string;
+  badge?: string;
 }
 
 export interface ComboboxProp {
@@ -69,13 +71,13 @@ export function Combobox(prop: ComboboxProp) {
                     setOpen(false);
                   }}
                 >
-                  {item.label}
-                  <Check
-                    className={cn(
-                      "ml-auto",
-                      value === item.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
+                  <div className="flex justify-between items-center w-full ">
+                    <div>{item.label}</div>
+                    <div className="flex items-center gap-1">
+                      {item.badge && <Badge>{item.badge}</Badge>}
+                      {value === item.value && <Check />}
+                    </div>
+                  </div>
                 </CommandItem>
               ))}
             </CommandGroup>

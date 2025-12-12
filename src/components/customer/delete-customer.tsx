@@ -33,7 +33,7 @@ export const DeleteCustomerButton = ({ id }: { id: number }) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Icon icon="ic:baseline-delete" color="red" width={"25px"} />
+        <Icon icon="ic:baseline-delete" color="red" />
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

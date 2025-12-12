@@ -38,11 +38,17 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
-import { AddSantriMonthlyMoneySchema } from "@/app/dto/monthly-money-dto";
+import {
+  acceptedTypeMonthlyMoney,
+  AddSantriMonthlyMoneySchema,
+  priceTypeMonthlyMoney,
+} from "@/app/dto/monthly-money-dto";
 import { Combobox, ItemCombobox } from "../ui/combobox";
+import { ConvertRupiah } from "@/utils/utils";
+import { watch } from "fs";
 
 const defaultValues: z.infer<typeof AddSantriMonthlyMoneySchema> = {
-  amount: 0,
+  type: "",
   customer_id: "",
 };
 
@@ -68,7 +74,7 @@ export const AddMonthlyMoneyButton = () => {
     mutate({
       body: values,
       method: HttpMethod.POST,
-      url: "/customers/monthly-money",
+      url: "/monthly-moneys",
     });
   };
 
@@ -101,18 +107,27 @@ export const AddMonthlyMoneyButton = () => {
     form.reset();
   };
 
+  const total = () => {
+    const type = form.watch("type");
+
+    if (type != "") {
+      return priceTypeMonthlyMoney.get(type) ?? 0;
+    }
+    return 0;
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button onClick={() => setOpen(true)}>
           <Icon icon="ic:baseline-plus" color="white" />
-          Tambah Bulanan
+          Bayar Bulanan
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Tambah Bulanan</DialogTitle>
+          <DialogTitle>Bayar Bulanan</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -146,24 +161,39 @@ export const AddMonthlyMoneyButton = () => {
               <Field>
                 <FormField
                   control={form.control}
-                  name="amount"
+                  name="type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Jumlah</FormLabel>
+                      <FormLabel>Jenis Bulanan</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="jumlah"
-                          type="number"
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                        />
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Jenis Bulanan" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              {acceptedTypeMonthlyMoney.map((v) => (
+                                <SelectItem key={v} value={v}>
+                                  {v.toUpperCase()}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </Field>
+
+              <div className="flex justify-between ">
+                <div>Total :</div>
+                <div>{ConvertRupiah(total())}</div>
+              </div>
 
               <Field>
                 <DialogFooter>

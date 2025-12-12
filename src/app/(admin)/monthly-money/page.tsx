@@ -4,16 +4,10 @@ import { DataTable } from "@/components/ui/datatable";
 import { useEffect, useState } from "react";
 import { useQueryData } from "@/utils/tanstack";
 import { ColumnDef } from "@tanstack/react-table";
-import { AddCustomerButton } from "@/components/customer/add-customer";
-import { Customer } from "@/app/dto/customer-dto";
-import { EditCustomerButton } from "@/components/customer/edit-customer";
-import { DeleteCustomerButton } from "@/components/customer/delete-customer";
-import {
-  ListSantriMonthlyMoney,
-  SantriMonthlyMoney,
-} from "@/app/dto/monthly-money-dto";
+import { ListSantriMonthlyMoney } from "@/app/dto/monthly-money-dto";
 import { AddMonthlyMoneyButton } from "@/components/monthly-money/add-monthly";
-import { ConvertRupiah } from "@/utils/utils";
+import { DeleteMonthlyButton } from "@/components/monthly-money/delete-monthly";
+import { formatToLocalTimezone } from "@/utils/utils";
 
 const columns: ColumnDef<ListSantriMonthlyMoney>[] = [
   {
@@ -21,11 +15,19 @@ const columns: ColumnDef<ListSantriMonthlyMoney>[] = [
     header: "Nama",
   },
   {
-    header: "Jumlah",
+    accessorKey: "type",
+    header: "Jenis Bulanan",
+  },
+  {
+    header: "Tanggal",
     cell: ({ row }) => {
-      const amount = row.original.amount;
-
-      return ConvertRupiah(amount);
+      return formatToLocalTimezone(row.original.created_at);
+    },
+  },
+  {
+    header: "Aksi",
+    cell: ({ row }) => {
+      return <DeleteMonthlyButton id={row.original.id.toString()} />;
     },
   },
 ];
@@ -35,7 +37,7 @@ export default function MonthlyMoneyPage() {
 
   const { isPending, isSuccess, data } = useQueryData(
     ["getSmm"],
-    "/customers/monthly-money"
+    "/monthly-moneys"
   );
 
   useEffect(() => {

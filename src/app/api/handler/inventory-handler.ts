@@ -2,6 +2,7 @@ import {
   AddInventorySchema,
   EditInventorySchema,
   Inventory,
+  ManageInventorySchema,
 } from "@/app/dto/inventory-dto";
 import db from "@/db";
 import { inventoriesTable, inventoryStockTable } from "@/db/schema";
@@ -25,7 +26,8 @@ export async function CreateInventoryHandler(req: NextRequest) {
       await tx.insert(inventoryStockTable).values({
         inventory_id: res[0].insertId,
         stock: body.stock,
-        description: "menambah stok",
+        price: body.price,
+        description: "inventaris baru",
       });
     });
 
@@ -95,5 +97,44 @@ export async function DeleteInventoryHandler(req: NextRequest, id: string) {
     return ResponseOk(null, "sukses menghapus persediaan");
   } catch (error) {
     return ResponseErr("gagal menghapus persediaan", error);
+  }
+}
+
+export async function ManageStockHandler(req: NextRequest, id: string) {
+  try {
+    const json = await req.json();
+    const body = ManageInventorySchema.parse(json);
+
+    await db.transaction(async (tx) => {
+      const [sQty] = await tx
+        .select({
+          id: inventoriesTable.id,
+          sum_qty: sql<number>`sum(${inventoryStockTable.stock})`,
+        })
+        .from(inventoriesTable)
+        .where(eq(inventoriesTable.id, Number(id)))
+        .innerJoin(
+          inventoryStockTable,
+          eq(inventoriesTable.id, inventoryStockTable.inventory_id)
+        )
+        .groupBy(inventoriesTable.id);
+
+      if (body.stock < 0) {
+        if (sQty.sum_qty + body.stock < 0) {
+          throw new Error("stok melebihi batas minimal");
+        }
+      }
+
+      await tx.insert(inventoryStockTable).values({
+        inventory_id: sQty.id,
+        stock: body.stock,
+        description: body.description,
+        price: body.price,
+      });
+    });
+
+    return ResponseOk(null, "sukses mengubah stok inventaris");
+  } catch (error) {
+    return ResponseErr("gagal mengubah stok inventaris", error);
   }
 }

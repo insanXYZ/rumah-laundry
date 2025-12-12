@@ -12,3 +12,11 @@ export const LoginRequestSchema = z.object({
     error: "password minimum 8 character",
   }),
 });
+
+export const EditAccountSchema = z.object({
+  name: z.string(),
+  email: z.email(),
+  password: z.string().min(8, {
+    error: "password minimum 8 character",
+  }),
+});

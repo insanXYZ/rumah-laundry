@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { API } from "./axios";
 import { ResponseSchema } from "@/app/dto/dto";
 import { AxiosError } from "axios";
-import { toast } from "sonner";
+import { ToastError, ToastSuccess } from "./toast";
 
 export const useQueryData = (keys: any[], url: string) => {
   return useQuery({
@@ -49,14 +49,14 @@ export function Mutation<T = any>(
     mutationKey,
     onSuccess: (data: ResponseSchema) => {
       if (data.message && useToast) {
-        toast(data.message);
+        ToastSuccess(data.message);
       }
 
       return queryClient.invalidateQueries({ queryKey: mutationKey });
     },
     onError: (err: any) => {
       if (err.message && useToast) {
-        toast(err.message);
+        ToastError(err.message);
       }
     },
   });

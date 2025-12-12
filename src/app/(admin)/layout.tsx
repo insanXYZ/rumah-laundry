@@ -14,41 +14,20 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  Command,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
 import { navigation } from "@/navigation/sidebar";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserMenu } from "@/components/sidebar/user-menu";
+import Image from "next/image";
 
 export default function RootLayout({
   children,
@@ -67,17 +46,9 @@ export default function RootLayout({
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton size="lg">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Icon
-                    width={"80px"}
-                    icon={"material-symbols-light:laundry-outline"}
-                  />{" "}
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Rumah Laundry</span>
-                </div>
-              </SidebarMenuButton>
+              <div className="flex justify-center w-full">
+                <Image src={"logo.svg"} alt="logo" width={100} height={200} />
+              </div>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>

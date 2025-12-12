@@ -57,7 +57,6 @@ const defaultValues: z.infer<typeof AddOrderSchema> = {
   items: [
     {
       product_id: "",
-      unit: "",
       quantity: 0,
     },
   ],
@@ -119,6 +118,7 @@ export const AddOrderButton = () => {
       customers.forEach((v) => {
         itemComList.push({
           label: v.name,
+          badge: v.type,
           value: v.id?.toString()!,
         });
       });
@@ -155,14 +155,24 @@ export const AddOrderButton = () => {
   const handleAddItemForm = () => {
     append({
       product_id: "",
-      unit: "",
       quantity: 0,
     });
   };
 
   function totalPrice(): number {
+    const custId = form.watch("customer_id");
     const items = form.watch("items");
     let total: number = 0;
+
+    if (custId == "") {
+      return 0;
+    }
+
+    const customer = customers.find((c) => c.id! == Number(custId));
+
+    if (customer?.type_monthly_money) {
+      return 0;
+    }
 
     items.forEach((item) => {
       const p = products.find((p) => p.id === Number(item.product_id));
@@ -172,6 +182,15 @@ export const AddOrderButton = () => {
     });
 
     return isNaN(total) ? 0 : total;
+  }
+
+  function typeMonthly() {
+    const custId = form.watch("customer_id");
+
+    if (custId != "") {
+      const customer = customers.find((c) => c.id! == Number(custId));
+      return customer?.type_monthly_money;
+    }
   }
 
   return (
@@ -229,7 +248,7 @@ export const AddOrderButton = () => {
                     {fields.map((field, index) => {
                       return (
                         <TableRow key={field.id}>
-                          <TableCell>
+                          <TableCell className="w-[55%]">
                             <FormField
                               control={form.control}
                               name={`items.${index}.product_id`}
@@ -245,33 +264,45 @@ export const AddOrderButton = () => {
                               )}
                             />
                           </TableCell>
-                          <TableCell>
-                            <FormField
-                              control={form.control}
-                              name={`items.${index}.quantity`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="qty"
-                                      type="number"
-                                      onChange={(e) =>
-                                        field.onChange(Number(e.target.value))
-                                      }
-                                      defaultValue={field.value}
-                                    />
-                                  </FormControl>
-                                </FormItem>
-                              )}
-                            />
+                          <TableCell className="w-[35%]">
+                            {form.getValues(`items.${index}.product_id`) !=
+                              "" && (
+                              <FormField
+                                control={form.control}
+                                name={`items.${index}.quantity`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <div className="flex items-center gap-1">
+                                        <Input
+                                          placeholder="qty"
+                                          type="number"
+                                          onChange={(e) =>
+                                            field.onChange(
+                                              Number(e.target.value)
+                                            )
+                                          }
+                                          defaultValue={field.value}
+                                        />
+                                      </div>
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+                            )}
                           </TableCell>
-                          <TableCell>
-                            <Icon
-                              onClick={() => remove(index)}
-                              icon="ic:baseline-delete"
-                              color="red"
-                              width={"20px"}
-                            />{" "}
+                          <TableCell className="w-[10%]">
+                            {form.getValues(`items.${index}.product_id`) !=
+                              "" && (
+                              <div className="flex justify-center">
+                                <Icon
+                                  onClick={() => remove(index)}
+                                  icon="ic:baseline-delete"
+                                  color="red"
+                                  width={"20px"}
+                                />{" "}
+                              </div>
+                            )}
                           </TableCell>
                         </TableRow>
                       );
@@ -290,13 +321,20 @@ export const AddOrderButton = () => {
                         </div>
                       </TableCell>
                     </TableRow>
-                    <TableRow>
-                      <TableCell colSpan={2}>Total</TableCell>
-                      <TableCell>{ConvertRupiah(totalPrice())}</TableCell>
-                    </TableRow>
                   </TableFooter>
                 </Table>
               </Field>
+
+              {typeMonthly() && (
+                <div className="flex items-center justify-between">
+                  <div>Jenis Bulanan :</div>
+                  <div>{typeMonthly()}</div>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <div>Total :</div>
+                <div>{ConvertRupiah(totalPrice())}</div>
+              </div>
 
               <Field>
                 <DialogFooter>

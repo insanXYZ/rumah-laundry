@@ -6,27 +6,20 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
+import { ChevronsUpDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
-import { Admin } from "@/app/dto/auth-dto";
+import { Admin } from "@/app/dto/admin-dto";
 import { useQueryData } from "@/utils/tanstack";
+import { AccountAdminButton } from "./account";
+import { LogoutButton } from "./logout";
 
 export function UserMenu() {
   const { isMobile } = useSidebar();
@@ -53,8 +46,9 @@ export function UserMenu() {
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <Avatar className="h-8 w-8 rounded-lg">
-                  {/* <AvatarImage src={user.avatar} alt={user.name} /> */}
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    {admin?.name.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{admin?.name}</span>
@@ -70,13 +64,11 @@ export function UserMenu() {
               sideOffset={4}
             >
               <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <BadgeCheck />
-                  Account
+                <DropdownMenuItem asChild>
+                  <AccountAdminButton values={admin!} />
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <LogOut />
-                  Log out
+                <DropdownMenuItem asChild>
+                  <LogoutButton />
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>

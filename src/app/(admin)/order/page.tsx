@@ -4,17 +4,14 @@ import { DataTable } from "@/components/ui/datatable";
 import { useEffect, useState } from "react";
 import { useQueryData } from "@/utils/tanstack";
 import { ColumnDef } from "@tanstack/react-table";
-import { AddCustomerButton } from "@/components/customer/add-customer";
-import { Customer } from "@/app/dto/customer-dto";
-import { EditCustomerButton } from "@/components/customer/edit-customer";
-import { DeleteCustomerButton } from "@/components/customer/delete-customer";
 import { AddOrderButton } from "@/components/order/add-order";
-import { ListOrders } from "@/app/dto/order-dto";
-import { ConvertRupiah } from "@/utils/utils";
-import { TransactionButton } from "@/components/order/transaction-order";
-import { EditOrderButton } from "@/components/order/edit-order";
+import { acceptedStatusOrder, ListOrder } from "@/app/dto/order-dto";
+import { ConvertRupiah, formatToLocalTimezone } from "@/utils/utils";
+import { ConfirmDoneOrderButton } from "@/components/order/confirm-done-order";
+import { DeleteOrderButton } from "@/components/order/delete-order";
+import { PrintOrderButton } from "@/components/order/print-order";
 
-const columns: ColumnDef<ListOrders>[] = [
+const columns: ColumnDef<ListOrder>[] = [
   {
     accessorKey: "name",
     header: "Nama",
@@ -36,14 +33,25 @@ const columns: ColumnDef<ListOrders>[] = [
       return ConvertRupiah(total);
     },
   },
-
+  {
+    header: "Tanggal",
+    cell: ({ row }) => {
+      return formatToLocalTimezone(row.original.created_at);
+    },
+  },
   {
     header: "Aksi",
     cell: ({ row }) => {
       return (
         <div className="flex gap-2 items-center">
-          {/* <TransactionButton values={row.original} /> */}
-          <EditOrderButton values={row.original} />
+          {row.original.status === acceptedStatusOrder[0] ? (
+            <>
+              <ConfirmDoneOrderButton values={row.original} />
+              <DeleteOrderButton values={row.original} />
+            </>
+          ) : (
+            <PrintOrderButton values={row.original} />
+          )}
         </div>
       );
     },
@@ -51,7 +59,7 @@ const columns: ColumnDef<ListOrders>[] = [
 ];
 
 export default function OrderPage() {
-  const [orders, setOrders] = useState<ListOrders[]>([]);
+  const [orders, setOrders] = useState<ListOrder[]>([]);
 
   const { isPending, isSuccess, data } = useQueryData(["getOrders"], "/orders");
 

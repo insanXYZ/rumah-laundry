@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import {
   CreateMonthlyMoneyHandler,
   ListAllMonthlyMoneyHandler,
-} from "../../handler/customer-handler";
+} from "../handler/monthly-money-handler";
 
 export async function POST(req: NextRequest) {
   return CreateMonthlyMoneyHandler(req);

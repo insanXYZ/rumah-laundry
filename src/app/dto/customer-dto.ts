@@ -7,7 +7,7 @@ export interface Customer {
   number_phone: string;
   type: "santri" | "umum";
   address?: string;
-  monthly_money?: number;
+  type_monthly_money?: string;
 }
 
 const Base = z.object({

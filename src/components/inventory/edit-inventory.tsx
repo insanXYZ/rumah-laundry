@@ -64,7 +64,7 @@ export const EditInventoryButton = ({ values }: { values: Inventory }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Icon icon="ic:baseline-edit" color="green" width={"25px"} />
+        <Icon icon="ic:baseline-edit" color="green" />
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]">

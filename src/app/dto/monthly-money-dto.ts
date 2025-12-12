@@ -1,5 +1,11 @@
 import z from "zod";
 
+export const acceptedTypeMonthlyMoney: string[] = ["cuci saja", "cuci setrika"];
+export const priceTypeMonthlyMoney = new Map<string, number>([
+  [acceptedTypeMonthlyMoney[0], 100000],
+  [acceptedTypeMonthlyMoney[1], 140000],
+]);
+
 export interface SantriMonthlyMoney {
   id: number;
   customer_id: number;
@@ -7,12 +13,14 @@ export interface SantriMonthlyMoney {
 }
 
 export interface ListSantriMonthlyMoney {
+  id: number;
   customer_id: number;
-  amount: number;
+  type: string;
   name: string;
+  created_at: Date;
 }
 
 export const AddSantriMonthlyMoneySchema = z.object({
   customer_id: z.string(),
-  amount: z.number(),
+  type: z.string(),
 });

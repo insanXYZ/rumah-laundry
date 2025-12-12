@@ -33,13 +33,11 @@ import { AddInventorySchema } from "@/app/dto/inventory-dto";
 const defaultValues: z.infer<typeof AddInventorySchema> = {
   name: "",
   stock: 0,
+  price: 0,
 };
 
 export const AddInventoryButton = () => {
-  const { mutate, data, isSuccess, isPending } = Mutation(
-    ["getInventories"],
-    true
-  );
+  const { mutate, isSuccess, isPending } = Mutation(["getInventories"], true);
   const [open, setOpen] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof AddInventorySchema>>({
@@ -67,13 +65,13 @@ export const AddInventoryButton = () => {
       <DialogTrigger asChild>
         <Button>
           <Icon icon="ic:baseline-plus" color="white" />
-          Tambah Persediaan
+          Tambah Inventaris
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Tambah Persediaan</DialogTitle>
+          <DialogTitle>Tambah Inventaris</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -105,6 +103,27 @@ export const AddInventoryButton = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Stok</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="0"
+                          type="number"
+                          onChange={(e) =>
+                            field.onChange(e.target.valueAsNumber)
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </Field>
+              <Field>
+                <FormField
+                  control={form.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Harga</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="0"

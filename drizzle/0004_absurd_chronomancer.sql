@@ -1,0 +1,1 @@
+ALTER TABLE `charge_santries` ADD `status` varchar(100);

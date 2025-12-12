@@ -9,7 +9,7 @@ import { ResponseErr, ResponseOk } from "@/utils/http";
 import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
-const acceptedUnit: string[] = ["kg", "pcs"];
+export const acceptedUnit: string[] = ["kg", "pcs"];
 
 export async function CreateProductHandler(req: NextRequest) {
   try {

@@ -3,7 +3,6 @@ import {
   Customer,
   EditCustomerSchema,
 } from "@/app/dto/customer-dto";
-import { AddSantriMonthlyMoneySchema } from "@/app/dto/monthly-money-dto";
 import db from "@/db";
 import { customersTable, santriMonthlyMoneyTable } from "@/db/schema";
 import { ResponseErr, ResponseOk } from "@/utils/http";
@@ -118,68 +117,6 @@ export async function DeleteCustomerHandler(req: NextRequest, id: string) {
   }
 }
 
-// POST /customers/monthly-money
-export async function CreateMonthlyMoneyHandler(req: NextRequest) {
-  try {
-    const json = await req.json();
-    const body = AddSantriMonthlyMoneySchema.parse(json);
-
-    const customers = await db
-      .select()
-      .from(customersTable)
-      .where(
-        and(
-          eq(customersTable.id, Number(body.customer_id)),
-          eq(customersTable.type, "santri")
-        )
-      );
-
-    if (customers.length == 0) {
-      return ResponseErr("santri tidak valid");
-    }
-
-    await db
-      .insert(santriMonthlyMoneyTable)
-      .values({
-        amount: body.amount,
-        customer_id: Number(body.customer_id),
-      })
-      .execute();
-
-    return ResponseOk(null, "sukses membuat bulanan santri");
-  } catch (error) {
-    return ResponseErr("gagal membuat bulanan santri", error);
-  }
-}
-
-// GET /customers/monthly-money
-export async function ListAllMonthlyMoneyHandler() {
-  try {
-    const santriMonthlyMoneys = await db
-      .select({
-        customer_id: santriMonthlyMoneyTable.customer_id,
-        name: customersTable.name,
-        amount: sql<number>`SUM(${santriMonthlyMoneyTable.amount})`,
-      })
-      .from(santriMonthlyMoneyTable)
-      .innerJoin(
-        customersTable,
-        eq(santriMonthlyMoneyTable.customer_id, customersTable.id)
-      )
-      .where(
-        and(
-          sql`MONTH(${santriMonthlyMoneyTable.created_at}) = MONTH(NOW())`,
-          sql`YEAR(${santriMonthlyMoneyTable.created_at}) = YEAR(NOW())`
-        )
-      )
-      .groupBy(santriMonthlyMoneyTable.customer_id);
-
-    return ResponseOk(santriMonthlyMoneys, "sukses menampilkan bulanan santri");
-  } catch (error) {
-    return ResponseErr("gagal menampilkan bulanan santri", error);
-  }
-}
-
 export async function ListAllOrderCustomerHandler() {
   try {
     const customers = await db
@@ -190,7 +127,7 @@ export async function ListAllOrderCustomerHandler() {
         type: customersTable.type,
         number_phone: customersTable.number_phone,
         address: customersTable.address,
-        monthly_money: sql<number>`COALESCE(SUM(${santriMonthlyMoneyTable.amount}), 0)`,
+        type_monthly_money: santriMonthlyMoneyTable.type,
       })
       .from(customersTable)
       .leftJoin(
@@ -200,8 +137,7 @@ export async function ListAllOrderCustomerHandler() {
           sql`MONTH(${santriMonthlyMoneyTable.created_at}) = MONTH(NOW())`,
           sql`YEAR(${santriMonthlyMoneyTable.created_at}) = YEAR(NOW())`
         )
-      )
-      .groupBy(customersTable.id);
+      );
 
     return ResponseOk(customers, "sukses menampilkan pelanggan order");
   } catch (error) {

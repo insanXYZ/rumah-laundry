@@ -1,5 +1,6 @@
 import {
   bigint,
+  boolean,
   decimal,
   int,
   mysqlTable,
@@ -9,7 +10,7 @@ import {
 } from "drizzle-orm/mysql-core";
 
 export const adminsTable = mysqlTable("admins", {
-  id: serial().primaryKey(),
+  id: int().primaryKey().autoincrement(),
   name: varchar({
     length: 100,
   }).notNull(),
@@ -58,6 +59,7 @@ export const inventoriesTable = mysqlTable("inventories", {
     length: 100,
   }).notNull(),
   created_at: timestamp().defaultNow(),
+  deleted_at: timestamp(),
 });
 
 export const inventoryStockTable = mysqlTable("inventory_stock", {
@@ -68,6 +70,7 @@ export const inventoryStockTable = mysqlTable("inventory_stock", {
     })
     .notNull(),
   stock: int().notNull(),
+  price: int().default(0),
   description: varchar({
     length: 255,
   }),
@@ -112,6 +115,20 @@ export const santriMonthlyMoneyTable = mysqlTable("santri_monthly_moneys", {
       onDelete: "cascade",
     })
     .notNull(),
+  type: varchar({
+    length: 100,
+  }).notNull(),
   amount: int().notNull(),
+  created_at: timestamp().defaultNow(),
+});
+
+export const chargeSantriTable = mysqlTable("charge_santries", {
+  id: int().primaryKey().autoincrement(),
+  customer_id: int().references(() => customersTable.id, {
+    onDelete: "cascade",
+  }),
+  quantity: decimal({ precision: 10, scale: 2 }),
+  amount: int(),
+  payed: boolean().default(false),
   created_at: timestamp().defaultNow(),
 });

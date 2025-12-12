@@ -10,6 +10,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { EditInventoryHandler } from "@/app/api/handler/inventory-handler";
 import { EditInventoryButton } from "@/components/inventory/edit-inventory";
 import { DeleteInventoryButton } from "@/components/inventory/delete-inventory";
+import { ManageStockButton } from "@/components/inventory/manage-stock-inventory";
 
 const columns: ColumnDef<Inventory>[] = [
   {
@@ -25,7 +26,8 @@ const columns: ColumnDef<Inventory>[] = [
     cell: ({ row }) => (
       <div className="flex gap-2 items-center">
         <EditInventoryButton values={row.original} />
-        <DeleteInventoryButton id={row.original.id!} />
+        {/* <DeleteInventoryButton id={row.original.id!} /> */}
+        <ManageStockButton values={row.original} />
       </div>
     ),
   },

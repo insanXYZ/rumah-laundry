@@ -99,7 +99,6 @@ export const EditCustomerButton = ({ values }: { values: Customer }) => {
           onClick={() => setOpen(true)}
           icon="ic:baseline-edit"
           color="green"
-          width={"25px"}
         />
       </DialogTrigger>
 
