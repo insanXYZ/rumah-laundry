@@ -21,7 +21,8 @@ import {
 import { useQueryData } from "@/utils/tanstack";
 
 import { ConvertRupiah } from "@/utils/utils";
-import { useEffect, useState } from "react";
+import { DateTime } from "luxon";
+import { useEffect, useMemo, useState } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 const chartConfig = {
@@ -39,7 +40,6 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function DasboardPage() {
-  const [dashboard, setDashboard] = useState<GetInformationDashoard>();
   const [startDate, setStartDate] = useState<string>("");
   const [lastDate, setLastDate] = useState<string>("");
 
@@ -57,27 +57,37 @@ export default function DasboardPage() {
     buildDashboardUrl(startDate, lastDate)
   );
 
-  useEffect(() => {
-    if (isSuccess && data?.data) {
-      setDashboard(data.data);
-    }
-  }, [isSuccess]);
+  const dashboard: GetInformationDashoard = data?.data;
 
   const [timeRange, setTimeRange] = useState("30d");
+  const filteredData = useMemo(() => {
+    if (!dashboard?.chart_income_expends?.length) return [];
 
-  const filteredData = dashboard?.chart_income_expends.filter((item) => {
-    const date = new Date(item.date);
-    const referenceDate = new Date("2024-06-30");
-    let daysToSubtract = 90;
-    if (timeRange === "30d") {
-      daysToSubtract = 30;
-    } else if (timeRange === "7d") {
-      daysToSubtract = 7;
+    if (startDate && lastDate) {
+      const start = DateTime.fromISO(startDate).startOf("day");
+      const end = DateTime.fromISO(lastDate).endOf("day");
+
+      return dashboard.chart_income_expends.filter((item) => {
+        const itemDate = DateTime.fromISO(item.date);
+        return itemDate >= start && itemDate <= end;
+      });
     }
-    const startDate = new Date(referenceDate);
-    startDate.setDate(startDate.getDate() - daysToSubtract);
-    return date >= startDate;
-  });
+
+    let days = 90;
+    if (timeRange === "30d") days = 30;
+    else if (timeRange === "7d") days = 7;
+
+    const referenceDate = DateTime.fromISO(
+      dashboard.chart_income_expends.at(-1)!.date
+    );
+
+    const start = referenceDate.minus({ days });
+
+    return dashboard.chart_income_expends.filter((item) => {
+      const itemDate = DateTime.fromISO(item.date);
+      return itemDate >= start && itemDate <= referenceDate;
+    });
+  }, [dashboard, timeRange, startDate, lastDate]);
 
   return (
     <div className="flex flex-col gap-5">

@@ -32,35 +32,34 @@ interface filterDashoardButtonProps {
   setLastDate: (e: string) => void;
 }
 
-export const FilterDashboardButton = (props: filterDashoardButtonProps) => {
+export const FilterDashboardButton = ({
+  setStartDate,
+  setLastDate,
+}: filterDashoardButtonProps) => {
   const [filter, setFilter] = useState<string>();
-  const [startDate, setStartDate] = useState<string>("");
-  const [lastDate, setLastDate] = useState<string>("");
 
-  useEffect(() => {
-    if (filter != "custom") {
-      const today = new Date();
+  const handlePreset = (value: string) => {
+    const now = DateTime.now();
 
-      switch (filter) {
-        case "today":
-          props.setStartDate(DateTime.fromJSDate(today).toFormat("yyyy-MM-dd"));
-          props.setLastDate(DateTime.fromJSDate(today).toFormat("yyyy-MM-dd"));
-          break;
-        case "month":
-          const date = DateTime.fromJSDate(today);
-          const start = date.startOf("month");
-          const end = date.endOf("month");
-          props.setStartDate(start.toFormat("yyyy-MM-dd"));
-          props.setLastDate(end.toFormat("yyyy-MM-dd"));
-          break;
-      }
+    switch (value) {
+      case "today":
+        setStartDate(now.toFormat("yyyy-MM-dd"));
+        setLastDate(now.toFormat("yyyy-MM-dd"));
+        break;
+
+      case "month":
+        setStartDate(now.startOf("month").toFormat("yyyy-MM-dd"));
+        setLastDate(now.endOf("month").toFormat("yyyy-MM-dd"));
+        break;
+
+      case "custom":
+        setStartDate("");
+        setLastDate("");
+        break;
     }
-  }, [filter]);
 
-  useEffect(() => {
-    props.setStartDate(startDate);
-    props.setLastDate(lastDate);
-  }, [startDate, lastDate]);
+    setFilter(value);
+  };
 
   return (
     <DropdownMenu>
@@ -72,7 +71,7 @@ export const FilterDashboardButton = (props: filterDashoardButtonProps) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-96" align="start">
         <div className="w-full flex flex-col gap-5 p-2">
-          <Select onValueChange={(v) => setFilter(v)}>
+          <Select onValueChange={handlePreset}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Filter" />
             </SelectTrigger>

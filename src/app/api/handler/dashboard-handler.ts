@@ -7,6 +7,7 @@ import db from "@/db";
 import { inventoryStockTable, orderItemTable, orderTable } from "@/db/schema";
 import { ResponseErr, ResponseOk } from "@/utils/http";
 import { GetPayload, toUTC } from "@/utils/utils";
+import { endOfDay } from "date-fns";
 import { and, between, eq, sql } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { NextRequest } from "next/server";
@@ -23,17 +24,13 @@ export async function GetDashboardItemHandler(req: NextRequest) {
       startParam
         ? DateTime.fromISO(startParam, { zone: payload.tz })
         : now.startOf("month")
-    )
-      .startOf("day")
-      .toJSDate();
+    ).startOf("day");
 
     const lastDate = (
       lastParam
         ? DateTime.fromISO(lastParam, { zone: payload.tz })
         : now.endOf("month")
-    )
-      .endOf("day")
-      .toJSDate();
+    ).endOf("day");
 
     const res: GetInformationDashoard = {
       chart_income_expends: [],
@@ -43,103 +40,107 @@ export async function GetDashboardItemHandler(req: NextRequest) {
       total_order: 0,
     };
 
-    const allDates: string[] = [];
+    const dates: string[] = [];
 
-    for (let day = 1; day <= now.daysInMonth; day++) {
-      const date = now.set({ day });
-      allDates.push(date.toFormat("yyyy-MM-dd"));
+    let cursor = startDate.startOf("day");
+    while (cursor <= lastDate) {
+      dates.push(cursor.toFormat("yyyy-MM-dd"));
+      cursor = cursor.plus({ days: 1 });
     }
 
-    const incomes = await db
+    const [total_finished_order] = await db
       .select({
-        income: sql<number>`COALESCE(SUM(${orderItemTable.total_price}), 0)`,
+        total_finished_order: sql<number>`COALESCE(COUNT(${orderTable.id}),0)`,
       })
       .from(orderTable)
-      .innerJoin(orderItemTable, eq(orderTable.id, orderItemTable.order_id))
       .where(
         and(
           eq(orderTable.status, acceptedStatusOrder[1]),
-          between(orderTable.created_at, startDate, lastDate)
+          between(
+            orderTable.created_at,
+            startDate.toJSDate(),
+            lastDate.toJSDate()
+          )
         )
       );
 
-    res.income = Number(incomes[0]?.income) || 0;
+    res.total_finished_order = total_finished_order.total_finished_order;
 
-    // Query total orders
-    const total_orders = await db
+    const [total_order] = await db
       .select({
-        total_order: sql<number>`COUNT(${orderTable.id})`,
-      })
-      .from(orderTable)
-      .where(between(orderTable.created_at, startDate, lastDate));
-
-    res.total_order = Number(total_orders[0]?.total_order) || 0;
-
-    const expends = await db
-      .select({
-        expend: sql<number>`COALESCE(SUM(${inventoryStockTable.price}), 0)`,
-      })
-      .from(inventoryStockTable)
-      .where(between(inventoryStockTable.created_at, startDate, lastDate));
-
-    res.expend = Number(expends[0]?.expend) || 0;
-
-    // Query total finished orders
-    const total_order_finisheds = await db
-      .select({
-        total_order: sql<number>`COUNT(${orderTable.id})`,
+        total_order: sql<number>`COALESCE(COUNT(${orderTable.id}),0)`,
       })
       .from(orderTable)
       .where(
-        and(
-          between(orderTable.created_at, startDate, lastDate),
-          eq(orderTable.status, acceptedStatusOrder[1])
+        between(
+          orderTable.created_at,
+          startDate.toJSDate(),
+          lastDate.toJSDate()
         )
       );
 
-    res.total_finished_order =
-      Number(total_order_finisheds[0]?.total_order) || 0;
+    res.total_order = total_order.total_order;
 
-    // Query pendapatan per tanggal
-    const pendapatan = await db
-      .select({
-        tanggal: sql<string>`DATE(${orderItemTable.created_at})`.as("tanggal"),
-        total: sql<number>`COALESCE(SUM(${orderItemTable.total_price}), 0)`.as(
-          "total"
-        ),
-      })
+    const itemOrders = await db
+      .select()
       .from(orderItemTable)
-      .where(between(orderItemTable.created_at, startDate, lastDate))
-      .groupBy(sql`DATE(${orderItemTable.created_at})`);
+      .where(
+        between(
+          orderItemTable.created_at,
+          startDate.toJSDate(),
+          lastDate.toJSDate()
+        )
+      );
 
-    // Query pengeluaran per tanggal
-    const pengeluaran = await db
-      .select({
-        tanggal: sql<string>`DATE(${inventoryStockTable.created_at})`.as(
-          "tanggal"
-        ),
-        total: sql<number>`COALESCE(SUM(${inventoryStockTable.price}), 0)`.as(
-          "total"
-        ),
-      })
+    const income = itemOrders.reduce((sum, item) => {
+      return sum + Number(item.total_price ?? 0);
+    }, 0);
+
+    const incomeMap = itemOrders.reduce<Record<string, number>>((acc, item) => {
+      const date = DateTime.fromJSDate(item.created_at!)
+        .setZone(payload.tz)
+        .toFormat("yyyy-MM-dd");
+
+      acc[date] = (acc[date] ?? 0) + Number(item.total_price ?? 0);
+      return acc;
+    }, {});
+
+    res.income = income;
+
+    const inventoriStocks = await db
+      .select()
       .from(inventoryStockTable)
-      .where(between(inventoryStockTable.created_at, startDate, lastDate))
-      .groupBy(sql`DATE(${inventoryStockTable.created_at})`);
+      .where(
+        between(
+          inventoryStockTable.created_at,
+          startDate.toJSDate(),
+          lastDate.toJSDate()
+        )
+      );
 
-    const pendapatanMap = new Map(
-      pendapatan.map((p) => [p.tanggal, Number(p.total)])
-    );
-    const pengeluaranMap = new Map(
-      pengeluaran.map((p) => [p.tanggal, Number(p.total)])
+    const expend = inventoriStocks.reduce((sum, item) => {
+      return sum + Number(item.price ?? 0);
+    }, 0);
+
+    const expendMap = inventoriStocks.reduce<Record<string, number>>(
+      (acc, item) => {
+        const date = DateTime.fromJSDate(item.created_at!)
+          .setZone(payload.tz)
+          .toFormat("yyyy-MM-dd");
+
+        acc[date] = (acc[date] ?? 0) + Number(item.price ?? 0);
+        return acc;
+      },
+      {}
     );
 
-    const result: ChartIncomeExpend[] = allDates.map((date) => ({
-      date: date,
-      income: Number(pendapatanMap.get(date)) || 0,
-      expend: Number(pengeluaranMap.get(date)) || 0,
+    res.expend = expend;
+
+    res.chart_income_expends = dates.map((date) => ({
+      date,
+      income: incomeMap[date] ?? 0,
+      expend: expendMap[date] ?? 0,
     }));
-
-    res.chart_income_expends = result;
 
     return ResponseOk(res, "sukses mendapatkan informasi dashboard");
   } catch (error) {

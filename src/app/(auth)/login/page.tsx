@@ -103,7 +103,7 @@ export default function LoginPage() {
                 />
               </Field>
               <Field>
-                <ButtonLoading isLoading={isPending} label="Submit" />
+                <ButtonLoading isLoading={isPending} label="Login" />
               </Field>
             </FieldGroup>
           </form>

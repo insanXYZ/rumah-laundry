@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Waktu pembuatan: 12 Des 2025 pada 01.42
+-- Waktu pembuatan: 15 Des 2025 pada 04.15
 -- Versi server: 9.4.0
 -- Versi PHP: 8.2.29
 
@@ -56,6 +56,13 @@ CREATE TABLE `charge_santries` (
   `created_at` timestamp NULL DEFAULT (now()),
   `payed` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data untuk tabel `charge_santries`
+--
+
+INSERT INTO `charge_santries` (`id`, `customer_id`, `quantity`, `amount`, `created_at`, `payed`) VALUES
+(4, 1, 5.00, 30000, '2025-12-13 11:47:52', 1);
 
 -- --------------------------------------------------------
 
@@ -122,7 +129,8 @@ CREATE TABLE `inventory_stock` (
 --
 
 INSERT INTO `inventory_stock` (`id`, `inventory_id`, `stock`, `created_at`, `price`, `description`) VALUES
-(4, 3, 3, '2025-12-11 17:49:58', 15000, 'inventaris baru');
+(4, 3, 3, '2025-12-11 17:49:58', 15000, 'inventaris baru'),
+(5, 3, -2, '2025-12-13 00:47:47', 0, 'habis');
 
 -- --------------------------------------------------------
 
@@ -144,7 +152,8 @@ CREATE TABLE `orders` (
 INSERT INTO `orders` (`id`, `customer_id`, `status`, `created_at`) VALUES
 (31, 3, 'beres', '2025-12-11 16:56:03'),
 (32, 3, 'beres', '2025-12-12 01:13:07'),
-(33, 3, 'beres', '2025-12-12 01:25:21');
+(33, 3, 'beres', '2025-12-12 01:25:21'),
+(34, 1, 'beres', '2025-12-13 11:47:52');
 
 -- --------------------------------------------------------
 
@@ -169,7 +178,8 @@ CREATE TABLE `order_items` (
 INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `quantity`, `price`, `total_price`, `created_at`) VALUES
 (40, 31, 2, 1.00, 6000, 6000, '2025-12-11 16:56:03'),
 (41, 32, 3, 10.00, 5000, 50000, '2025-12-12 01:13:07'),
-(42, 33, 8, 10.00, 25000, 250000, '2025-12-12 01:25:21');
+(42, 33, 8, 10.00, 25000, 250000, '2025-12-12 01:25:21'),
+(43, 34, 1, 30.00, 5000, 0, '2025-12-13 11:47:52');
 
 -- --------------------------------------------------------
 
@@ -227,7 +237,9 @@ CREATE TABLE `santri_monthly_moneys` (
 --
 
 INSERT INTO `santri_monthly_moneys` (`id`, `customer_id`, `amount`, `created_at`, `type`) VALUES
-(3, 1, 140000, '2025-12-08 02:02:53', 'cuci setrika');
+(5, 1, 100000, '2025-11-14 15:27:16', 'cuci saja'),
+(7, 2, 140000, '2025-11-15 00:13:43', 'cuci setrika'),
+(8, 1, 140000, '2025-12-15 00:37:08', 'cuci setrika');
 
 -- --------------------------------------------------------
 
@@ -344,13 +356,13 @@ ALTER TABLE `admins`
 -- AUTO_INCREMENT untuk tabel `charge_santries`
 --
 ALTER TABLE `charge_santries`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT untuk tabel `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT untuk tabel `inventories`
@@ -362,31 +374,31 @@ ALTER TABLE `inventories`
 -- AUTO_INCREMENT untuk tabel `inventory_stock`
 --
 ALTER TABLE `inventory_stock`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT untuk tabel `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT untuk tabel `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT untuk tabel `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT untuk tabel `santri_monthly_moneys`
 --
 ALTER TABLE `santri_monthly_moneys`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT untuk tabel `__drizzle_migrations`
