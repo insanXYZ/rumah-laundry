@@ -18,7 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import z from "zod";
+import z, { custom } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldGroup } from "../ui/field";
@@ -27,7 +27,11 @@ import { Button } from "../ui/button";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
 import { ButtonLoading } from "../ui/button-loading";
-import { AddCustomerSchema, Customer } from "@/app/dto/customer-dto";
+import {
+  AddCustomerSchema,
+  Customer,
+  ListCustomerMonthly,
+} from "@/app/dto/customer-dto";
 import {
   Select,
   SelectContent,
@@ -54,6 +58,7 @@ const defaultValues: z.infer<typeof AddSantriMonthlyMoneySchema> = {
 
 export const AddMonthlyMoneyButton = () => {
   const [open, setOpen] = useState<boolean>(false);
+  const [santriMonthly, setSantriMonthly] = useState<ListCustomerMonthly[]>([]);
   const [itemComboboxSantri, setItemComboboxSantri] = useState<ItemCombobox[]>(
     []
   );
@@ -63,7 +68,7 @@ export const AddMonthlyMoneyButton = () => {
     isPending: pendingSantri,
     isSuccess: successSantri,
     data: dataSantri,
-  } = useQueryData(["getCustomers"], "/customers?type=santri");
+  } = useQueryData(["getCustomers"], "/customers/monthly");
 
   const form = useForm<z.infer<typeof AddSantriMonthlyMoneySchema>>({
     resolver: zodResolver(AddSantriMonthlyMoneySchema),
@@ -87,9 +92,11 @@ export const AddMonthlyMoneyButton = () => {
 
   useEffect(() => {
     if (successSantri && dataSantri?.data) {
+      setSantriMonthly(dataSantri.data);
+
       let listComboboxSantri: ItemCombobox[] = [];
 
-      const santris = dataSantri.data as Customer[];
+      const santris = dataSantri.data as ListCustomerMonthly[];
 
       santris.forEach((santri) => {
         listComboboxSantri.push({
@@ -109,11 +116,26 @@ export const AddMonthlyMoneyButton = () => {
 
   const total = () => {
     const type = form.watch("type");
+    const customer_id = form.watch("customer_id");
 
     if (type != "") {
-      return priceTypeMonthlyMoney.get(type) ?? 0;
+      const customer = santriMonthly.find((s) => s.id == Number(customer_id));
+      const totalWithQty = Number(customer?.charge_qty ?? 0) * 6000;
+      const total = (priceTypeMonthlyMoney.get(type) ?? 0) + totalWithQty;
+
+      return total;
     }
     return 0;
+  };
+
+  const statusCharge = () => {
+    const customer_id = form.watch("customer_id");
+
+    if (customer_id) {
+      const customer = santriMonthly.find((s) => s.id == Number(customer_id));
+
+      return customer?.charge_qty;
+    }
   };
 
   return (
@@ -189,6 +211,13 @@ export const AddMonthlyMoneyButton = () => {
                   )}
                 />
               </Field>
+
+              {statusCharge() && (
+                <div className="flex justify-between ">
+                  <div>Charge :</div>
+                  <div>{statusCharge()} Kg</div>
+                </div>
+              )}
 
               <div className="flex justify-between ">
                 <div>Total :</div>

@@ -27,17 +27,6 @@ import { Button } from "../ui/button";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
 import { ButtonLoading } from "../ui/button-loading";
-import { AddCustomerSchema, Customer } from "@/app/dto/customer-dto";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { Textarea } from "../ui/textarea";
 import { AddOrderSchema } from "@/app/dto/order-dto";
 import { Combobox, ItemCombobox } from "../ui/combobox";
 import {
@@ -51,6 +40,7 @@ import {
 } from "../ui/table";
 import { Product } from "@/app/dto/product-dto";
 import { ConvertRupiah } from "@/utils/utils";
+import { Customer } from "@/app/dto/customer-dto";
 
 const defaultValues: z.infer<typeof AddOrderSchema> = {
   customer_id: "",
@@ -260,6 +250,7 @@ export const AddOrderButton = () => {
                                     placeholder="Pilih layanan"
                                     items={itemComboboxProducts}
                                   />
+                                  <FormMessage />
                                 </FormItem>
                               )}
                             />
@@ -286,6 +277,7 @@ export const AddOrderButton = () => {
                                         />
                                       </div>
                                     </FormControl>
+                                    <FormMessage />
                                   </FormItem>
                                 )}
                               />

@@ -11,6 +11,7 @@ import { EditInventoryHandler } from "@/app/api/handler/inventory-handler";
 import { EditInventoryButton } from "@/components/inventory/edit-inventory";
 import { DeleteInventoryButton } from "@/components/inventory/delete-inventory";
 import { ManageStockButton } from "@/components/inventory/manage-stock-inventory";
+import { InputSearchDebounce } from "@/components/ui/input-search-debounce";
 
 const columns: ColumnDef<Inventory>[] = [
   {
@@ -35,10 +36,11 @@ const columns: ColumnDef<Inventory>[] = [
 
 export default function InventoryPage() {
   const [inventories, setInventories] = useState<Inventory[]>([]);
+  const [searchInventory, setSearchInventory] = useState<string>("");
 
   const { isPending, isSuccess, data } = useQueryData(
-    ["getInventories"],
-    "/inventories"
+    ["getInventories", searchInventory],
+    searchInventory ? `/inventories?name=${searchInventory}` : "/inventories"
   );
 
   useEffect(() => {
@@ -51,6 +53,11 @@ export default function InventoryPage() {
     <div className="w-full flex flex-col gap-5">
       <div className="flex justify-between">
         <AddInventoryButton />
+        <InputSearchDebounce
+          onChange={setSearchInventory}
+          placeholder="nama barang"
+          width="w-52"
+        />
       </div>
       <div className="w-full">
         <DataTable columns={columns} data={inventories} />

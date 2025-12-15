@@ -6,8 +6,18 @@ export interface Inventory {
   stock: number;
 }
 
+export interface ListInventoryStock {
+  name: string;
+  stock: number;
+  price: number;
+  description: string;
+  created_at: Date;
+}
+
 export const AddInventorySchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1, {
+    error: "nama wajib diisi",
+  }),
   stock: z.number().min(0),
   price: z.number(),
 });

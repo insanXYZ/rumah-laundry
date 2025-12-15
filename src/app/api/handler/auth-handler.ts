@@ -5,6 +5,7 @@ import {
 } from "@/app/dto/admin-dto";
 import db from "@/db";
 import { adminsTable } from "@/db/schema";
+import { PayloadJWT } from "@/types/jwt";
 import { ResponseErr, ResponseOk } from "@/utils/http";
 import { CreateToken, DecodeJwt } from "@/utils/jwt";
 import bcrypt from "bcryptjs";
@@ -34,11 +35,14 @@ export const LoginHandler = async (request: NextRequest) => {
       return ResponseErr("email atau password salah");
     }
 
+    const payload: PayloadJWT = {
+      sub: admin.id.toString(),
+      tz: parsed.timezone,
+    };
+
     const accessToken = await CreateToken({
       exp: "360d",
-      payload: {
-        sub: admin.id.toString(),
-      },
+      payload: payload,
     });
 
     const response = ResponseOk(

@@ -8,8 +8,12 @@ export interface Product {
 }
 
 export const AddProductSchema = z.object({
-  name: z.string(),
-  unit: z.string(),
+  name: z.string().min(1, {
+    error: "nama wajib diisi",
+  }),
+  unit: z.string().min(1, {
+    error: "satuan wajib diisi",
+  }),
   price: z.number().min(0),
 });
 

@@ -18,6 +18,7 @@ export enum HttpMethod {
   POST = "POST",
   PUT = "PUT",
   DELETE = "DELETE",
+  GET = "GET",
 }
 
 interface Mutate {
@@ -55,8 +56,8 @@ export function Mutation<T = any>(
       return queryClient.invalidateQueries({ queryKey: mutationKey });
     },
     onError: (err: any) => {
-      if (err.message && useToast) {
-        ToastError(err.message);
+      if (err.response?.data && useToast) {
+        ToastError(err.response.data.message);
       }
     },
   });

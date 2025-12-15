@@ -21,6 +21,10 @@ export interface ListSantriMonthlyMoney {
 }
 
 export const AddSantriMonthlyMoneySchema = z.object({
-  customer_id: z.string(),
-  type: z.string(),
+  customer_id: z.string().min(1, {
+    error: "pelanggan wajib diisi",
+  }),
+  type: z.string().min(1, {
+    error: "jenis bulanan wajib diisi",
+  }),
 });

@@ -4,27 +4,44 @@ import {
   EditCustomerSchema,
 } from "@/app/dto/customer-dto";
 import db from "@/db";
-import { customersTable, santriMonthlyMoneyTable } from "@/db/schema";
+import {
+  chargeSantriTable,
+  customersTable,
+  santriMonthlyMoneyTable,
+} from "@/db/schema";
 import { ResponseErr, ResponseOk } from "@/utils/http";
-import { and, eq, like, sql } from "drizzle-orm";
+import { GetPayload } from "@/utils/utils";
+import { and, between, eq, inArray, isNull, like, sql } from "drizzle-orm";
+import { DateTime } from "luxon";
 import { NextRequest } from "next/server";
 
 // GET /customer
 export async function ListAllCustomerHandler(req: NextRequest) {
   try {
     let typeCustomers = "%%";
+    let name = "%%";
 
-    const { searchParams } = new URL(req.url);
+    const searchParams = req.nextUrl.searchParams;
 
     const typeParam = searchParams.get("type");
     if (typeParam) {
       typeCustomers = `%${typeParam}%`;
     }
 
+    const nameParam = searchParams.get("name");
+    if (nameParam) {
+      name = `%${nameParam}%`;
+    }
+
     const customers = await db
       .select()
       .from(customersTable)
-      .where(like(customersTable.type, typeCustomers));
+      .where(
+        and(
+          like(customersTable.type, typeCustomers),
+          like(customersTable.name, name)
+        )
+      );
 
     let listCustomers: Customer[] = [];
 
@@ -142,5 +159,61 @@ export async function ListAllOrderCustomerHandler() {
     return ResponseOk(customers, "sukses menampilkan pelanggan order");
   } catch (error) {
     return ResponseErr("gagal menampilkan pelanggan order", error);
+  }
+}
+
+export async function ListCustomerMonthlyHandler(req: NextRequest) {
+  try {
+    const payload = GetPayload(req);
+    const now = DateTime.now().setZone(payload.tz);
+    const startDate = now.startOf("month").toJSDate();
+    const endDate = now.endOf("month").toJSDate();
+
+    const customerIds = await db
+      .select({
+        id: customersTable.id,
+      })
+      .from(customersTable)
+      .leftJoin(
+        santriMonthlyMoneyTable,
+        and(
+          eq(customersTable.id, santriMonthlyMoneyTable.customer_id),
+          between(santriMonthlyMoneyTable.created_at, startDate, endDate)
+        )
+      )
+      .where(
+        and(
+          eq(customersTable.type, "santri"),
+          isNull(santriMonthlyMoneyTable.id)
+        )
+      );
+
+    const arrCustomerIds = customerIds.map((v) => v.id);
+
+    const customers = await db
+      .select({
+        id: customersTable.id,
+        name: customersTable.name,
+        charge_qty: sql<number>`COALESCE(SUM(${chargeSantriTable.quantity}) , 0)`,
+      })
+      .from(customersTable)
+      .leftJoin(
+        chargeSantriTable,
+        and(
+          eq(customersTable.id, chargeSantriTable.customer_id),
+          eq(chargeSantriTable.payed, false)
+        )
+      )
+      .where(
+        and(
+          eq(customersTable.type, "santri"),
+          inArray(customersTable.id, arrCustomerIds)
+        )
+      )
+      .groupBy(customersTable.id);
+
+    return ResponseOk(customers, "sukses mendapatkan pelanggan bulanan");
+  } catch (error) {
+    return ResponseErr("gagal mendapatkan pelanggan bulanan");
   }
 }

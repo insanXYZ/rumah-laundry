@@ -1,7 +1,9 @@
 interface sidebarMenu {
   label: string;
   icon: string;
-  url: string;
+  isActive?: boolean;
+  url?: string;
+  children?: sidebarMenu[];
 }
 
 export const navigation: sidebarMenu[] = [
@@ -18,7 +20,18 @@ export const navigation: sidebarMenu[] = [
   {
     label: "Inventaris",
     icon: "material-symbols:inventory-rounded",
-    url: "/inventory",
+    children: [
+      {
+        icon: "material-symbols:inventory-rounded",
+        label: "Data Inventaris",
+        url: "/inventory",
+      },
+      {
+        icon: "material-symbols:inventory-rounded",
+        label: "Riwayat",
+        url: "/inventory/history",
+      },
+    ],
   },
   {
     label: "Pelanggan",

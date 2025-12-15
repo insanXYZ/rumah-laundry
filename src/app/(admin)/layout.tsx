@@ -10,8 +10,12 @@ import {
   SidebarHeader,
   SidebarInset,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
@@ -28,6 +32,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserMenu } from "@/components/sidebar/user-menu";
 import Image from "next/image";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ChevronRight, Minus, Plus } from "lucide-react";
 
 export default function RootLayout({
   children,
@@ -47,7 +57,7 @@ export default function RootLayout({
           <SidebarMenu>
             <SidebarMenuItem>
               <div className="flex justify-center w-full">
-                <Image src={"logo.svg"} alt="logo" width={100} height={200} />
+                <Image src={"/logo.svg"} alt="logo" width={100} height={200} />
               </div>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -55,19 +65,66 @@ export default function RootLayout({
         <SidebarContent>
           <SidebarGroup className="group-data-[collapsible=icon]:hidden">
             <SidebarMenu>
-              {navigation.map((item) => (
-                <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton
-                    onClick={() => setBreadLabel(item.label)}
-                    asChild
-                  >
-                    <Link href={item.url}>
-                      <Icon icon={item.icon} />
-                      <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navigation.map((item) => {
+                if (!item.children) {
+                  return (
+                    <SidebarMenuItem key={item.label}>
+                      <SidebarMenuButton
+                        onClick={() => setBreadLabel(item.label)}
+                        asChild
+                      >
+                        <Link href={item.url!}>
+                          <Icon icon={item.icon} />
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                } else {
+                  return (
+                    <Collapsible
+                      key={item.label}
+                      asChild
+                      defaultOpen={item.isActive}
+                      className="group/collapsible"
+                    >
+                      <SidebarMenuItem key={item.label}>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton
+                            asChild
+                            tooltip={item.label}
+                            className="cursor-pointer"
+                          >
+                            <div>
+                              <Icon icon={item.icon} />
+                              <span>{item.label}</span>
+                              <ChevronRight className="ml-auto group-data-[state=open]/collapsible:rotate-90" />
+                            </div>
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+
+                        {item.children.length ? (
+                          <>
+                            <CollapsibleContent>
+                              <SidebarMenuSub>
+                                {item.children?.map((subItem) => (
+                                  <SidebarMenuSubItem key={subItem.label}>
+                                    <SidebarMenuSubButton asChild>
+                                      <Link href={subItem.url!}>
+                                        <span>{subItem.label}</span>
+                                      </Link>
+                                    </SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
+                                ))}
+                              </SidebarMenuSub>
+                            </CollapsibleContent>
+                          </>
+                        ) : null}
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  );
+                }
+              })}
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>

@@ -6,7 +6,7 @@ import {
 import db from "@/db";
 import { productsTable } from "@/db/schema";
 import { ResponseErr, ResponseOk } from "@/utils/http";
-import { eq } from "drizzle-orm";
+import { eq, like } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
 export const acceptedUnit: string[] = ["kg", "pcs"];
@@ -37,7 +37,14 @@ export async function CreateProductHandler(req: NextRequest) {
 
 export async function ListAllProductsHandler(req: NextRequest) {
   try {
-    const products = await db.select().from(productsTable);
+    const searchParams = req.nextUrl.searchParams;
+    const nameParam = searchParams.get("name");
+    let name = nameParam ? `%${nameParam}%` : "%%";
+
+    const products = await db
+      .select()
+      .from(productsTable)
+      .where(like(productsTable.name, name));
 
     let listProducts: Product[] = [];
 

@@ -2,6 +2,7 @@
 
 import { GetInformationDashoard } from "@/app/dto/dashboard-dto";
 import { CardDashboard } from "@/components/dashboard/card-dashboard";
+import { FilterDashboardButton } from "@/components/dashboard/filter-dashboard";
 import {
   Card,
   CardContent,
@@ -39,7 +40,22 @@ const chartConfig = {
 
 export default function DasboardPage() {
   const [dashboard, setDashboard] = useState<GetInformationDashoard>();
-  const { data, isSuccess } = useQueryData(["getDashboard"], "/dashboard");
+  const [startDate, setStartDate] = useState<string>("");
+  const [lastDate, setLastDate] = useState<string>("");
+
+  const buildDashboardUrl = (start?: string, last?: string) => {
+    const params = new URLSearchParams();
+
+    if (start) params.append("start", start);
+    if (last) params.append("last", last);
+
+    return `/dashboard${params.toString() ? `?${params}` : ""}`;
+  };
+
+  const { data, isSuccess } = useQueryData(
+    [startDate, lastDate],
+    buildDashboardUrl(startDate, lastDate)
+  );
 
   useEffect(() => {
     if (isSuccess && data?.data) {
@@ -65,6 +81,12 @@ export default function DasboardPage() {
 
   return (
     <div className="flex flex-col gap-5">
+      <div>
+        <FilterDashboardButton
+          setLastDate={setLastDate}
+          setStartDate={setStartDate}
+        />
+      </div>
       <div className="grid grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-4">
         <CardDashboard
           description="Total Pendapatan"

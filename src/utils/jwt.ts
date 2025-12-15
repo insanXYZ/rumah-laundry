@@ -5,7 +5,7 @@ const secret = new TextEncoder().encode(process.env.JWT_KEY);
 const alg = "HS256";
 
 interface CreateToken {
-  payload: jose.JWTPayload;
+  payload: any;
   exp: string;
 }
 

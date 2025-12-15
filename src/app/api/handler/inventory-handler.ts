@@ -2,12 +2,13 @@ import {
   AddInventorySchema,
   EditInventorySchema,
   Inventory,
+  ListInventoryStock,
   ManageInventorySchema,
 } from "@/app/dto/inventory-dto";
 import db from "@/db";
 import { inventoriesTable, inventoryStockTable } from "@/db/schema";
 import { ResponseErr, ResponseOk } from "@/utils/http";
-import { eq, sql } from "drizzle-orm";
+import { desc, eq, like, sql } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
 export async function CreateInventoryHandler(req: NextRequest) {
@@ -39,6 +40,11 @@ export async function CreateInventoryHandler(req: NextRequest) {
 
 export async function ListAllInventoryHandler(req: NextRequest) {
   try {
+    const searchParams = req.nextUrl.searchParams;
+    const nameParam = searchParams.get("name");
+
+    const name = nameParam ? `%${nameParam}%` : `%%`;
+
     const inventories = await db
       .select({
         id: inventoriesTable.id,
@@ -50,6 +56,7 @@ export async function ListAllInventoryHandler(req: NextRequest) {
         inventoryStockTable,
         eq(inventoriesTable.id, inventoryStockTable.inventory_id)
       )
+      .where(like(inventoriesTable.name, name))
       .groupBy(inventoriesTable.id);
 
     let listInventories: Inventory[] = [];
@@ -136,5 +143,32 @@ export async function ManageStockHandler(req: NextRequest, id: string) {
     return ResponseOk(null, "sukses mengubah stok inventaris");
   } catch (error) {
     return ResponseErr("gagal mengubah stok inventaris", error);
+  }
+}
+
+export async function ListInventoryStockHandler(req: NextRequest) {
+  try {
+    const stockInventories = await db
+      .select()
+      .from(inventoryStockTable)
+      .innerJoin(
+        inventoriesTable,
+        eq(inventoryStockTable.inventory_id, inventoriesTable.id)
+      )
+      .orderBy(desc(inventoryStockTable.created_at));
+
+    const resInventories: ListInventoryStock[] = stockInventories.map((s) => {
+      return {
+        created_at: s.inventory_stock.created_at!,
+        description: s.inventory_stock.description!,
+        name: s.inventories.name,
+        price: s.inventory_stock.price!,
+        stock: s.inventory_stock.stock,
+      };
+    });
+
+    return ResponseOk(resInventories, "sukses menampilkan riwayat inventaris");
+  } catch (error) {
+    return ResponseErr("gagal menampilkan riwayat inventaris", error);
   }
 }

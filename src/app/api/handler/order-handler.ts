@@ -14,7 +14,7 @@ import {
   santriMonthlyMoneyTable,
 } from "@/db/schema";
 import { ResponseErr, ResponseOk } from "@/utils/http";
-import { and, eq, inArray, sql, sum } from "drizzle-orm";
+import { and, desc, eq, inArray, sql, sum } from "drizzle-orm";
 import { NextRequest } from "next/server";
 import { acceptedUnit } from "./product-handler";
 
@@ -177,10 +177,8 @@ export async function ListOrdersHandler() {
       .from(orderTable)
       .innerJoin(orderItemTable, eq(orderTable.id, orderItemTable.order_id))
       .innerJoin(customersTable, eq(orderTable.customer_id, customersTable.id))
-      .innerJoin(
-        productsTable,
-        eq(orderItemTable.product_id, productsTable.id)
-      );
+      .innerJoin(productsTable, eq(orderItemTable.product_id, productsTable.id))
+      .orderBy(desc(orderTable.created_at));
 
     const ordersMap = new Map<number, ListOrder>();
 

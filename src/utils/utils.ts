@@ -1,3 +1,6 @@
+import { PayloadJWT } from "@/types/jwt";
+import { NextRequest } from "next/server";
+
 export const ConvertRupiah = (amount: number) => {
   // return new Intl.NumberFormat("id-ID", {
   //   style: "currency",
@@ -43,4 +46,10 @@ export const toUTC = (date: Date): Date => {
       date.getMilliseconds()
     )
   );
+};
+
+export const GetPayload = (req: NextRequest): PayloadJWT => {
+  const payload = req.headers.get("x-user-payload");
+
+  return JSON.parse(payload!) as PayloadJWT;
 };

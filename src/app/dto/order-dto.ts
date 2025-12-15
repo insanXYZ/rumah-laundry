@@ -22,15 +22,21 @@ export interface ListOrder {
 }
 
 export const AddOrderSchema = z.object({
-  customer_id: z.string(),
+  customer_id: z.string().min(1, {
+    error: "pelanggan wajib diisi",
+  }),
   items: z
     .array(
       z.object({
-        product_id: z.string(),
-        quantity: z.number(),
+        product_id: z.string().min(1, {
+          error: "layanan wajib diisi",
+        }),
+        quantity: z.number().min(0.1, {
+          error: "jumlah wajib diisi",
+        }),
       })
     )
-    .min(1, "Items tidak boleh kosong"),
+    .min(1, "Items wajib diisi"),
 });
 
 export const EditOrderSchema = z.object({
@@ -44,7 +50,7 @@ export const EditOrderSchema = z.object({
         quantity: z.number(),
       })
     )
-    .min(1, "Items tidak boleh kosong"),
+    .min(1, "Items wajib diisi"),
 });
 
 export const EditStatusOrderSchema = z.object({

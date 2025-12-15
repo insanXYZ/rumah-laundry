@@ -32,11 +32,9 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Textarea } from "../ui/textarea";
 import { AddProductSchema } from "@/app/dto/product-dto";
 
 const defaultValues: z.infer<typeof AddProductSchema> = {

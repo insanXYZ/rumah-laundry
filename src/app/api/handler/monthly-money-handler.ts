@@ -4,9 +4,13 @@ import {
   priceTypeMonthlyMoney,
 } from "@/app/dto/monthly-money-dto";
 import db from "@/db";
-import { customersTable, santriMonthlyMoneyTable } from "@/db/schema";
+import {
+  chargeSantriTable,
+  customersTable,
+  santriMonthlyMoneyTable,
+} from "@/db/schema";
 import { ResponseErr, ResponseOk } from "@/utils/http";
-import { and, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
 // POST /monthly-moneys
@@ -19,28 +23,37 @@ export async function CreateMonthlyMoneyHandler(req: NextRequest) {
       throw new Error("tipe bulanan tidak diketahui");
     }
 
-    const customers = await db
-      .select()
-      .from(customersTable)
-      .where(
-        and(
-          eq(customersTable.id, Number(body.customer_id)),
-          eq(customersTable.type, "santri")
-        )
-      );
+    await db.transaction(async (tx) => {
+      const customers = await tx
+        .select()
+        .from(customersTable)
+        .where(
+          and(
+            eq(customersTable.id, Number(body.customer_id)),
+            eq(customersTable.type, "santri")
+          )
+        );
 
-    if (customers.length == 0) {
-      throw new Error("santri tidak diketahui");
-    }
+      if (customers.length == 0) {
+        throw new Error("santri tidak diketahui");
+      }
 
-    await db
-      .insert(santriMonthlyMoneyTable)
-      .values({
-        type: body.type,
-        amount: priceTypeMonthlyMoney.get(body.type) ?? 0,
-        customer_id: Number(body.customer_id),
-      })
-      .execute();
+      await tx
+        .insert(santriMonthlyMoneyTable)
+        .values({
+          type: body.type,
+          amount: priceTypeMonthlyMoney.get(body.type) ?? 0,
+          customer_id: Number(body.customer_id),
+        })
+        .execute();
+
+      await tx
+        .update(chargeSantriTable)
+        .set({
+          payed: true,
+        })
+        .where(eq(chargeSantriTable.customer_id, Number(body.customer_id)));
+    });
 
     return ResponseOk(null, "sukses membuat bulanan santri");
   } catch (error) {
@@ -63,7 +76,8 @@ export async function ListAllMonthlyMoneyHandler() {
       .innerJoin(
         customersTable,
         eq(santriMonthlyMoneyTable.customer_id, customersTable.id)
-      );
+      )
+      .orderBy(desc(santriMonthlyMoneyTable.created_at));
 
     return ResponseOk(santriMonthlyMoneys, "sukses menampilkan bulanan santri");
   } catch (error) {

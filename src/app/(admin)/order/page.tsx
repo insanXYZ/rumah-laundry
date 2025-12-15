@@ -10,6 +10,8 @@ import { ConvertRupiah, formatToLocalTimezone } from "@/utils/utils";
 import { ConfirmDoneOrderButton } from "@/components/order/confirm-done-order";
 import { DeleteOrderButton } from "@/components/order/delete-order";
 import { PrintOrderButton } from "@/components/order/print-order";
+import { ViewOrderButton } from "@/components/order/view-order";
+import { ExportExcelButton } from "@/components/order/export-excel";
 
 const columns: ColumnDef<ListOrder>[] = [
   {
@@ -52,6 +54,7 @@ const columns: ColumnDef<ListOrder>[] = [
           ) : (
             <PrintOrderButton values={row.original} />
           )}
+          <ViewOrderButton values={row.original} />
         </div>
       );
     },
@@ -71,8 +74,9 @@ export default function OrderPage() {
 
   return (
     <div className="w-full flex flex-col gap-5">
-      <div className="flex justify-between">
+      <div className="flex gap-2">
         <AddOrderButton />
+        <ExportExcelButton />
       </div>
       <div className="w-full">
         <DataTable columns={columns} data={orders} />

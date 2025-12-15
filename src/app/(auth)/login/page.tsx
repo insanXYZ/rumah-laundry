@@ -25,6 +25,7 @@ import z from "zod";
 const defaultValues: z.infer<typeof LoginRequestSchema> = {
   email: "",
   password: "",
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 };
 
 export default function LoginPage() {

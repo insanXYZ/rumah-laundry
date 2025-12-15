@@ -10,9 +10,19 @@ export interface Customer {
   type_monthly_money?: string;
 }
 
+export interface ListCustomerMonthly {
+  id: number;
+  name: string;
+  charge_qty: string;
+}
+
 const Base = z.object({
-  name: z.string(),
-  number_phone: z.string(),
+  name: z.string().min(1, {
+    error: "nama wajib diisi",
+  }),
+  number_phone: z.string().min(1, {
+    error: "nomor hp wajib diisi",
+  }),
   class: z.string().optional(),
   address: z.string().optional(),
 });
@@ -20,11 +30,15 @@ const Base = z.object({
 export const AddCustomerSchema = z.discriminatedUnion("type", [
   Base.extend({
     type: z.literal("santri"),
-    class: z.string(),
+    class: z.string().min(1, {
+      error: "kelas wajib diisi",
+    }),
   }),
   Base.extend({
     type: z.literal("umum"),
-    address: z.string(),
+    address: z.string().min(1, {
+      error: "alamat wajib diisi",
+    }),
   }),
 ]);
 
