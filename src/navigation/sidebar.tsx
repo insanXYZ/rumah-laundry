@@ -1,4 +1,4 @@
-interface sidebarMenu {
+export interface sidebarMenu {
   label: string;
   icon: string;
   isActive?: boolean;

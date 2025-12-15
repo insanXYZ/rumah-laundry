@@ -10,7 +10,6 @@ import {
   SidebarHeader,
   SidebarInset,
   SidebarMenu,
-  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -26,7 +25,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
-import { navigation } from "@/navigation/sidebar";
+import { navigation, sidebarMenu } from "@/navigation/sidebar";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -46,9 +45,26 @@ export default function RootLayout({
 }) {
   const pathname = usePathname();
 
-  const [breadLabel, setBreadLabel] = React.useState<string>(() => {
-    return navigation.find((i) => i.url === pathname)?.label ?? "";
-  });
+  const findMenuByPath = (
+    menus: sidebarMenu[],
+    pathname: string
+  ): sidebarMenu | null => {
+    for (const menu of menus) {
+      if (menu.url === pathname) {
+        return menu;
+      }
+
+      if (menu.children) {
+        const found = findMenuByPath(menu.children, pathname);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  const breadLabel = React.useMemo(() => {
+    return findMenuByPath(navigation, pathname)?.label ?? "";
+  }, [pathname]);
 
   return (
     <SidebarProvider>
@@ -69,10 +85,7 @@ export default function RootLayout({
                 if (!item.children) {
                   return (
                     <SidebarMenuItem key={item.label}>
-                      <SidebarMenuButton
-                        onClick={() => setBreadLabel(item.label)}
-                        asChild
-                      >
+                      <SidebarMenuButton asChild>
                         <Link href={item.url!}>
                           <Icon icon={item.icon} />
                           <span>{item.label}</span>
