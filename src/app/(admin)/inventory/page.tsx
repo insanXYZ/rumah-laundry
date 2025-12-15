@@ -12,6 +12,7 @@ import { EditInventoryButton } from "@/components/inventory/edit-inventory";
 import { DeleteInventoryButton } from "@/components/inventory/delete-inventory";
 import { ManageStockButton } from "@/components/inventory/manage-stock-inventory";
 import { InputSearchDebounce } from "@/components/ui/input-search-debounce";
+import { ExportExcelExpendButton } from "@/components/inventory/export-excel";
 
 const columns: ColumnDef<Inventory>[] = [
   {
@@ -52,7 +53,10 @@ export default function InventoryPage() {
   return (
     <div className="w-full flex flex-col gap-5">
       <div className="flex justify-between">
-        <AddInventoryButton />
+        <div className="flex gap-2">
+          <AddInventoryButton />
+          <ExportExcelExpendButton />
+        </div>
         <InputSearchDebounce
           onChange={setSearchInventory}
           placeholder="nama barang"

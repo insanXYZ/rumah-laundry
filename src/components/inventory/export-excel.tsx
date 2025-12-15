@@ -2,11 +2,10 @@
 
 import { Icon } from "@iconify/react";
 import { Button } from "../ui/button";
-import { HttpMethod, Mutation } from "@/utils/tanstack";
 
-export const ExportExcelOrderButton = () => {
+export const ExportExcelExpendButton = () => {
   const onClick = () => {
-    window.location.href = "/api/report/order";
+    window.location.href = "/api/report/expend";
   };
 
   return (

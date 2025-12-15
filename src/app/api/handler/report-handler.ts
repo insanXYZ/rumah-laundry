@@ -1,13 +1,15 @@
 import db from "@/db";
 import {
   customersTable,
+  inventoriesTable,
+  inventoryStockTable,
   orderItemTable,
   orderTable,
   productsTable,
 } from "@/db/schema";
 import { ResponseErr } from "@/utils/http";
 import { ConvertRupiah, GetPayload } from "@/utils/utils";
-import { between, desc, eq } from "drizzle-orm";
+import { and, between, desc, eq, gt } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
@@ -53,7 +55,7 @@ export async function ReportOrderHandler(req: NextRequest) {
         customer_type: row.customers.type,
         order_date: DateTime.fromJSDate(row.orders.created_at!)
           .setZone(payload.tz)
-          .toFormat("yyyy-MM-dd hh:mm"),
+          .toFormat("yyyy-MM-dd hh:mm:ss"),
         status: row.orders.status,
         product_name: row.products.name,
         quantity: `${row.order_items.quantity} ${row.products.unit}`,
@@ -76,5 +78,70 @@ export async function ReportOrderHandler(req: NextRequest) {
     return new NextResponse(buffer, { headers });
   } catch (error) {
     return ResponseErr("gagal membuat laporan transaksi bulanan", error);
+  }
+}
+
+export async function ReportExpendHandler(req: NextRequest) {
+  try {
+    const payload = GetPayload(req);
+    const now = DateTime.now().setZone(payload.tz);
+    const startDate = now.startOf("month").toJSDate();
+    const endDate = now.endOf("month").toJSDate();
+
+    const inventoryStocks = await db
+      .select()
+      .from(inventoryStockTable)
+      .where(
+        and(
+          between(inventoryStockTable.created_at, startDate, endDate),
+          gt(inventoryStockTable.price, 0)
+        )
+      )
+      .innerJoin(
+        inventoriesTable,
+        eq(inventoriesTable.id, inventoryStockTable.inventory_id)
+      )
+      .orderBy(desc(inventoryStockTable.created_at));
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Laporan Pengeluaran Bulanan");
+
+    worksheet.columns = [
+      { header: "Nama Barang", key: "inventory_name", width: 25 },
+      { header: "Stok", key: "inventory_stok", width: 25 },
+      { header: "Harga", key: "inventory_price", width: 25 },
+      { header: "Tanggal Beli", key: "inventory_date", width: 20 },
+      { header: "Deskripsi", key: "inventory_desc", width: 25 },
+    ];
+
+    // styling header
+    worksheet.getRow(1).font = { bold: true };
+
+    for (const row of inventoryStocks) {
+      worksheet.addRow({
+        inventory_name: row.inventories.name,
+        inventory_stok: row.inventory_stock.stock,
+        inventory_price: row.inventory_stock.price,
+        inventory_date: DateTime.fromJSDate(row.inventory_stock.created_at!)
+          .setZone(payload.tz)
+          .toFormat("yyyy-MM-dd hh:mm:ss"),
+        inventory_desc: row.inventory_stock.description,
+      });
+    }
+
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    const fileName = `laporan-pengeluaran-${now.toFormat("yyyy-MM")}.xlsx`;
+
+    const headers = new Headers();
+    headers.set(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    headers.set("Content-Disposition", `attachment; filename=${fileName}`);
+
+    return new NextResponse(buffer, { headers });
+  } catch (error) {
+    return ResponseErr("gagal membuat laporan pengeluaran bulanan", error);
   }
 }

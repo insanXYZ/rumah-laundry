@@ -11,7 +11,7 @@ import { ConfirmDoneOrderButton } from "@/components/order/confirm-done-order";
 import { DeleteOrderButton } from "@/components/order/delete-order";
 import { PrintOrderButton } from "@/components/order/print-order";
 import { ViewOrderButton } from "@/components/order/view-order";
-import { ExportExcelButton } from "@/components/order/export-excel";
+import { ExportExcelOrderButton } from "@/components/order/export-excel";
 
 const columns: ColumnDef<ListOrder>[] = [
   {
@@ -76,7 +76,7 @@ export default function OrderPage() {
     <div className="w-full flex flex-col gap-5">
       <div className="flex gap-2">
         <AddOrderButton />
-        <ExportExcelButton />
+        <ExportExcelOrderButton />
       </div>
       <div className="w-full">
         <DataTable columns={columns} data={orders} />
