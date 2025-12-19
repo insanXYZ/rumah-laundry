@@ -28,25 +28,22 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
 import { ButtonLoading } from "../ui/button-loading";
 
-import { EditInventorySchema, Inventory } from "@/app/dto/inventory-dto";
+import { EditInventoryRequest, ListInventory } from "@/app/dto/inventory-dto";
 
-export const EditInventoryButton = ({ values }: { values: Inventory }) => {
-  const { mutate, data, isSuccess, isPending } = Mutation(
-    ["getInventories"],
-    true
-  );
+export const EditInventoryButton = ({ values }: { values: ListInventory }) => {
+  const { mutate, isSuccess, isPending } = Mutation(["getInventories"], true);
   const [open, setOpen] = useState<boolean>(false);
 
-  const defaultValues: z.infer<typeof EditInventorySchema> = {
+  const defaultValues: z.infer<typeof EditInventoryRequest> = {
     name: values.name,
   };
 
-  const form = useForm<z.infer<typeof EditInventorySchema>>({
-    resolver: zodResolver(EditInventorySchema),
+  const form = useForm<z.infer<typeof EditInventoryRequest>>({
+    resolver: zodResolver(EditInventoryRequest),
     defaultValues,
   });
 
-  const onSubmit = (body: z.infer<typeof EditInventorySchema>) => {
+  const onSubmit = (body: z.infer<typeof EditInventoryRequest>) => {
     mutate({
       body: body,
       method: HttpMethod.PUT,

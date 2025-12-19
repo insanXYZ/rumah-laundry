@@ -1,27 +1,24 @@
+import { Customer, Order, OrderItem } from "@/db/schema";
 import z from "zod";
 
-export const acceptedStatusOrder: string[] = ["proses", "beres"];
-
-export interface OrderItem {
-  id?: number;
-  order_id: number;
-  product_id: number;
-  product_name?: string;
-  quantity: number;
-  price: number;
-  total_price: number;
+export interface OrderItemListOrder extends OrderItem {
+  product_name: string;
 }
 
-export interface ListOrder {
-  id: number;
-  customer_id: number;
-  status: string;
-  created_at: Date;
+export interface ListOrder extends Order {
   name: string;
-  order_items: OrderItem[];
+  order_items: OrderItemListOrder[];
 }
 
-export const AddOrderSchema = z.object({
+export type ListOrdersResponse = ListOrder[];
+
+export interface ListCustomerOrder extends Customer {
+  type_monthly_money: string;
+}
+
+export type ListOrderCustomersResponse = ListCustomerOrder[];
+
+export const AddOrderRequest = z.object({
   customer_id: z.string().min(1, {
     error: "pelanggan wajib diisi",
   }),

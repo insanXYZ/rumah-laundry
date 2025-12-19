@@ -16,10 +16,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
-import { Admin } from "@/app/dto/admin-dto";
 import { useQueryData } from "@/utils/tanstack";
 import { AccountAdminButton } from "./account";
 import { LogoutButton } from "./logout";
+import { Admin } from "@/db/schema";
 
 export function UserMenu() {
   const { isMobile } = useSidebar();

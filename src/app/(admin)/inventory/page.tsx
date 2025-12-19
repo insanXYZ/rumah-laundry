@@ -3,18 +3,18 @@
 import { DataTable } from "@/components/ui/datatable";
 import { useEffect, useState } from "react";
 import { useQueryData } from "@/utils/tanstack";
-import { AddCustomerButton } from "@/components/customer/add-customer";
-import { Inventory } from "@/app/dto/inventory-dto";
+import {
+  ListInventoriesResponse,
+  ListInventory,
+} from "@/app/dto/inventory-dto";
 import { AddInventoryButton } from "@/components/inventory/add-inventory";
 import { ColumnDef } from "@tanstack/react-table";
-import { EditInventoryHandler } from "@/app/api/handler/inventory-handler";
 import { EditInventoryButton } from "@/components/inventory/edit-inventory";
-import { DeleteInventoryButton } from "@/components/inventory/delete-inventory";
 import { ManageStockButton } from "@/components/inventory/manage-stock-inventory";
 import { InputSearchDebounce } from "@/components/ui/input-search-debounce";
 import { ExportExcelExpendButton } from "@/components/inventory/export-excel";
 
-const columns: ColumnDef<Inventory>[] = [
+const columns: ColumnDef<ListInventory>[] = [
   {
     accessorKey: "name",
     header: "Nama",
@@ -36,10 +36,10 @@ const columns: ColumnDef<Inventory>[] = [
 ];
 
 export default function InventoryPage() {
-  const [inventories, setInventories] = useState<Inventory[]>([]);
+  const [inventories, setInventories] = useState<ListInventoriesResponse>([]);
   const [searchInventory, setSearchInventory] = useState<string>("");
 
-  const { isPending, isSuccess, data } = useQueryData(
+  const { isSuccess, data } = useQueryData(
     ["getInventories", searchInventory],
     searchInventory ? `/inventories?name=${searchInventory}` : "/inventories"
   );

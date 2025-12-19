@@ -8,7 +8,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { Input } from "../ui/input";
 import { Icon } from "@iconify/react";
 import {
   Form,
@@ -28,54 +27,51 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
 import { ButtonLoading } from "../ui/button-loading";
 import {
-  AddCustomerSchema,
-  Customer,
   ListCustomerMonthly,
+  ListCustomersMonthlyResponse,
 } from "@/app/dto/customer-dto";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Textarea } from "../ui/textarea";
-import {
-  acceptedTypeMonthlyMoney,
-  AddSantriMonthlyMoneySchema,
-  priceTypeMonthlyMoney,
-} from "@/app/dto/monthly-money-dto";
+import { AddSantriMonthlyMoneyRequest } from "@/app/dto/monthly-money-dto";
 import { Combobox, ItemCombobox } from "../ui/combobox";
 import { ConvertRupiah } from "@/utils/utils";
-import { watch } from "fs";
+import {
+  ACCEPTED_TYPE_MONTHLY_MONEY_SANTRI,
+  PRICE_TYPE_MONTHLY_MONEY_MAP,
+  SANTRI_CHARGE_PRICE,
+} from "@/types/types";
 
-const defaultValues: z.infer<typeof AddSantriMonthlyMoneySchema> = {
+const defaultValues: z.infer<typeof AddSantriMonthlyMoneyRequest> = {
   type: "",
   customer_id: "",
 };
 
 export const AddMonthlyMoneyButton = () => {
   const [open, setOpen] = useState<boolean>(false);
-  const [santriMonthly, setSantriMonthly] = useState<ListCustomerMonthly[]>([]);
+  const [santriMonthly, setSantriMonthly] =
+    useState<ListCustomersMonthlyResponse>([]);
   const [itemComboboxSantri, setItemComboboxSantri] = useState<ItemCombobox[]>(
     []
   );
 
-  const { mutate, data, isSuccess, isPending } = Mutation(["getSmm"], true);
-  const {
-    isPending: pendingSantri,
-    isSuccess: successSantri,
-    data: dataSantri,
-  } = useQueryData(["getCustomers"], "/customers/monthly");
+  const { mutate, isSuccess, isPending } = Mutation(["getSmm"], true);
+  const { isSuccess: successSantri, data: dataSantri } = useQueryData(
+    ["getCustomers"],
+    "/customers/monthly"
+  );
 
-  const form = useForm<z.infer<typeof AddSantriMonthlyMoneySchema>>({
-    resolver: zodResolver(AddSantriMonthlyMoneySchema),
+  const form = useForm<z.infer<typeof AddSantriMonthlyMoneyRequest>>({
+    resolver: zodResolver(AddSantriMonthlyMoneyRequest),
     defaultValues,
   });
 
-  const onSubmit = (values: z.infer<typeof AddSantriMonthlyMoneySchema>) => {
+  const onSubmit = (values: z.infer<typeof AddSantriMonthlyMoneyRequest>) => {
     mutate({
       body: values,
       method: HttpMethod.POST,
@@ -96,7 +92,7 @@ export const AddMonthlyMoneyButton = () => {
 
       let listComboboxSantri: ItemCombobox[] = [];
 
-      const santris = dataSantri.data as ListCustomerMonthly[];
+      const santris = dataSantri.data as ListCustomersMonthlyResponse;
 
       santris.forEach((santri) => {
         listComboboxSantri.push({
@@ -120,8 +116,10 @@ export const AddMonthlyMoneyButton = () => {
 
     if (type != "") {
       const customer = santriMonthly.find((s) => s.id == Number(customer_id));
-      const totalWithQty = Number(customer?.charge_qty ?? 0) * 6000;
-      const total = (priceTypeMonthlyMoney.get(type) ?? 0) + totalWithQty;
+      const totalWithQty =
+        Number(customer?.charge_qty ?? 0) * SANTRI_CHARGE_PRICE;
+      const total =
+        (PRICE_TYPE_MONTHLY_MONEY_MAP.get(type) ?? 0) + totalWithQty;
 
       return total;
     }
@@ -197,7 +195,7 @@ export const AddMonthlyMoneyButton = () => {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
-                              {acceptedTypeMonthlyMoney.map((v) => (
+                              {ACCEPTED_TYPE_MONTHLY_MONEY_SANTRI.map((v) => (
                                 <SelectItem key={v} value={v}>
                                   {v.toUpperCase()}
                                 </SelectItem>

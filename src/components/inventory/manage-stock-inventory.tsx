@@ -28,30 +28,27 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
 import { ButtonLoading } from "../ui/button-loading";
 
-import { ManageInventorySchema, Inventory } from "@/app/dto/inventory-dto";
+import { ListInventory, ManageInventoryRequest } from "@/app/dto/inventory-dto";
 import { Textarea } from "../ui/textarea";
 
-export const ManageStockButton = ({ values }: { values: Inventory }) => {
-  const { mutate, data, isSuccess, isPending } = Mutation(
-    ["getInventories"],
-    true
-  );
+export const ManageStockButton = ({ values }: { values: ListInventory }) => {
+  const { mutate, isSuccess, isPending } = Mutation(["getInventories"], true);
   const [open, setOpen] = useState<boolean>(false);
 
-  const defaultValues: z.infer<typeof ManageInventorySchema> = {
+  const defaultValues: z.infer<typeof ManageInventoryRequest> = {
     description: "",
     price: 0,
     stock: 0,
   };
 
-  const form = useForm<z.infer<typeof ManageInventorySchema>>({
-    resolver: zodResolver(ManageInventorySchema),
+  const form = useForm<z.infer<typeof ManageInventoryRequest>>({
+    resolver: zodResolver(ManageInventoryRequest),
     defaultValues,
   });
 
   const watchStock = form.watch("stock");
 
-  const onSubmit = (body: z.infer<typeof ManageInventorySchema>) => {
+  const onSubmit = (body: z.infer<typeof ManageInventoryRequest>) => {
     mutate({
       body: body,
       method: HttpMethod.PUT,

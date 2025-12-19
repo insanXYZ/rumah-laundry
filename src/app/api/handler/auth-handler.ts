@@ -1,38 +1,33 @@
-import {
-  Admin,
-  EditAccountSchema,
-  LoginRequestSchema,
-} from "@/app/dto/admin-dto";
+import { EditAccountSchema, LoginRequest } from "@/app/dto/admin-dto";
 import db from "@/db";
-import { adminsTable } from "@/db/schema";
-import { PayloadJWT } from "@/types/jwt";
+import { Admin, adminTable } from "@/db/schema";
+import { PayloadJWT } from "@/types/types";
 import { ResponseErr, ResponseOk } from "@/utils/http";
 import { CreateToken, DecodeJwt } from "@/utils/jwt";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-// POST /admin/login
+// POST /admins/login
 export const LoginHandler = async (request: NextRequest) => {
   try {
     const body = await request.json();
-    const parsed = LoginRequestSchema.parse(body);
+    const parsed = LoginRequest.parse(body);
 
     const admins = await db
       .select()
-      .from(adminsTable)
-      .where(eq(adminsTable.email, parsed.email));
+      .from(adminTable)
+      .where(eq(adminTable.email, parsed.email));
 
     if (admins.length == 0) {
-      return ResponseErr("email atau password salah");
+      throw new Error("email atau password salah");
     }
 
     const admin = admins[0];
 
     const compared = bcrypt.compareSync(parsed.password, admin.password);
     if (!compared) {
-      return ResponseErr("email atau password salah");
+      throw new Error("email atau password salah");
     }
 
     const payload: PayloadJWT = {
@@ -60,8 +55,8 @@ export const LoginHandler = async (request: NextRequest) => {
     });
 
     return response;
-  } catch (err) {
-    return ResponseErr("email atau password salah", err);
+  } catch (err: any) {
+    return ResponseErr("Gagal Login", err);
   }
 };
 
@@ -70,15 +65,15 @@ export async function MeHandler(req: NextRequest) {
     const token = req.cookies.get("X-ACC-TOKEN")?.value;
 
     if (!token) {
-      return ResponseErr("gagal mendapatkan informasi user", null);
+      throw new Error("token tidak ada");
     }
 
     const claims = DecodeJwt(token);
 
     const admins = await db
       .select()
-      .from(adminsTable)
-      .where(eq(adminsTable.id, Number(claims.sub)));
+      .from(adminTable)
+      .where(eq(adminTable.id, Number(claims.sub)));
 
     let valAdmin = admins[0];
 
@@ -100,13 +95,13 @@ export async function EditAdminHandler(req: NextRequest, id: string) {
     const body = EditAccountSchema.parse(json);
 
     await db
-      .update(adminsTable)
+      .update(adminTable)
       .set({
         email: body.email,
         name: body.name,
         password: bcrypt.hashSync(body.password),
       })
-      .where(eq(adminsTable.id, Number(id)));
+      .where(eq(adminTable.id, Number(id)));
 
     return ResponseOk(null, "sukses merubah akun admin");
   } catch (error) {

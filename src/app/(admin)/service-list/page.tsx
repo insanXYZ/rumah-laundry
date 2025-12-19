@@ -4,12 +4,13 @@ import { DataTable } from "@/components/ui/datatable";
 import { useEffect, useState } from "react";
 import { useQueryData } from "@/utils/tanstack";
 import { ColumnDef } from "@tanstack/react-table";
-import { Product } from "@/app/dto/product-dto";
 import { AddProductButton } from "@/components/product/add-product";
 import { ConvertRupiah } from "@/utils/utils";
 import { EditProductButton } from "@/components/product/edit-product";
 import { DeleteProductButton } from "@/components/product/delete-product";
 import { InputSearchDebounce } from "@/components/ui/input-search-debounce";
+import { ListProductsResponse } from "@/app/dto/product-dto";
+import { Product } from "@/db/schema";
 
 const columns: ColumnDef<Product>[] = [
   {
@@ -41,10 +42,10 @@ const columns: ColumnDef<Product>[] = [
 ];
 
 export default function ServiceListPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ListProductsResponse>([]);
   const [searchProduct, setSearchProduct] = useState<string>();
 
-  const { isPending, isSuccess, data } = useQueryData(
+  const { isSuccess, data } = useQueryData(
     ["getProducts", searchProduct],
     searchProduct ? `/products?name=${searchProduct}` : "/products"
   );

@@ -15,8 +15,11 @@ export const ResponseOk = (data: any, message: string) => {
 export const ResponseErr = (message: string, error?: any) => {
   const response: ResponseSchema = {
     message,
-    error,
   };
+
+  if (error) {
+    response.error = error instanceof Error ? error.message : undefined;
+  }
 
   return NextResponse.json(response, {
     status: 400,

@@ -27,7 +27,6 @@ import { Button } from "../ui/button";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
 import { ButtonLoading } from "../ui/button-loading";
-import { Customer, EditCustomerSchema } from "@/app/dto/customer-dto";
 import {
   Select,
   SelectContent,
@@ -37,15 +36,14 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
+import { EditCustomerRequest } from "@/app/dto/customer-dto";
+import { Customer } from "@/db/schema";
 
 export const EditCustomerButton = ({ values }: { values: Customer }) => {
-  const { mutate, data, isSuccess, isPending } = Mutation(
-    ["getCustomers"],
-    true
-  );
+  const { mutate, isSuccess, isPending } = Mutation(["getCustomers"], true);
   const [open, setOpen] = useState<boolean>(false);
 
-  let defaultValues: z.infer<typeof EditCustomerSchema>;
+  let defaultValues: z.infer<typeof EditCustomerRequest>;
 
   if (values.type === "santri") {
     defaultValues = {
@@ -65,14 +63,14 @@ export const EditCustomerButton = ({ values }: { values: Customer }) => {
     };
   }
 
-  const form = useForm<z.infer<typeof EditCustomerSchema>>({
-    resolver: zodResolver(EditCustomerSchema),
+  const form = useForm<z.infer<typeof EditCustomerRequest>>({
+    resolver: zodResolver(EditCustomerRequest),
     defaultValues,
   });
 
   const watchType = form.watch("type");
 
-  const onSubmit = (body: z.infer<typeof EditCustomerSchema>) => {
+  const onSubmit = (body: z.infer<typeof EditCustomerRequest>) => {
     mutate({
       body: body,
       method: HttpMethod.PUT,

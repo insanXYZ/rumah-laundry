@@ -1,6 +1,6 @@
 "use client";
 
-import { LoginRequestSchema } from "@/app/dto/admin-dto";
+import { LoginRequest } from "@/app/dto/admin-dto";
 import CardHeaderAuth from "@/components/auth/card_header";
 import SeparatorAuth from "@/components/auth/separator";
 import { ButtonLoading } from "@/components/ui/button-loading";
@@ -22,15 +22,15 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 
-const defaultValues: z.infer<typeof LoginRequestSchema> = {
+const defaultValues: z.infer<typeof LoginRequest> = {
   email: "",
   password: "",
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 };
 
 export default function LoginPage() {
-  const form = useForm<z.infer<typeof LoginRequestSchema>>({
-    resolver: zodResolver(LoginRequestSchema),
+  const form = useForm<z.infer<typeof LoginRequest>>({
+    resolver: zodResolver(LoginRequest),
     defaultValues,
   });
 
@@ -38,7 +38,7 @@ export default function LoginPage() {
 
   const { mutate, data, isPending, isSuccess } = Mutation(["adminLogin"], true);
 
-  const onSubmit = (values: z.infer<typeof LoginRequestSchema>) => {
+  const onSubmit = (values: z.infer<typeof LoginRequest>) => {
     mutate({
       body: values,
       method: HttpMethod.POST,

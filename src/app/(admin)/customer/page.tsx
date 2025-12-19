@@ -1,22 +1,15 @@
 "use client";
 
-import { DataTable } from "@/components/ui/datatable";
 import { useEffect, useState } from "react";
 import { useQueryData } from "@/utils/tanstack";
 import { ColumnDef } from "@tanstack/react-table";
 import { AddCustomerButton } from "@/components/customer/add-customer";
-import { Customer } from "@/app/dto/customer-dto";
 import { EditCustomerButton } from "@/components/customer/edit-customer";
 import { DeleteCustomerButton } from "@/components/customer/delete-customer";
-import { Input } from "@/components/ui/input";
-import { useDebouncedCallback } from "use-debounce";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
-import { SearchIcon } from "lucide-react";
 import { InputSearchDebounce } from "@/components/ui/input-search-debounce";
+import { Customer } from "@/db/schema";
+import { ListCustomersResponse } from "@/app/dto/customer-dto";
+import { DataTable } from "@/components/ui/datatable";
 
 const columns: ColumnDef<Customer>[] = [
   {
@@ -43,10 +36,10 @@ const columns: ColumnDef<Customer>[] = [
 ];
 
 export default function CustomerPage() {
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [customers, setCustomers] = useState<ListCustomersResponse>([]);
   const [searchCustomer, setSearchCustomer] = useState<string>("");
 
-  const { isPending, isSuccess, data } = useQueryData(
+  const { isSuccess, data } = useQueryData(
     ["getCustomers", searchCustomer],
     searchCustomer ? `/customers?name=${searchCustomer}` : "/customers"
   );

@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
 import db from "..";
-import { adminsTable } from "../schema";
+import { adminTable } from "../schema";
 
-db.insert(adminsTable)
+db.insert(adminTable)
   .values({
     name: "admin",
     email: "admin@gmail.com",

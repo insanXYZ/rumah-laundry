@@ -1,24 +1,25 @@
 import {
-  AddInventorySchema,
-  EditInventorySchema,
-  Inventory,
+  AddInventoryRequest,
+  EditInventoryRequest,
+  ListInventoriesResponse,
   ListInventoryStock,
-  ManageInventorySchema,
+  ManageInventoryRequest,
 } from "@/app/dto/inventory-dto";
 import db from "@/db";
-import { inventoriesTable, inventoryStockTable } from "@/db/schema";
+import { inventoryStockTable, inventoryTable } from "@/db/schema";
 import { ResponseErr, ResponseOk } from "@/utils/http";
 import { desc, eq, like, sql } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
-export async function CreateInventoryHandler(req: NextRequest) {
+// POST /inventories
+export async function AddInventoryHandler(req: NextRequest) {
   try {
     const json = await req.json();
-    const body = AddInventorySchema.parse(json);
+    const body = AddInventoryRequest.parse(json);
 
     await db.transaction(async (tx) => {
       const res = await tx
-        .insert(inventoriesTable)
+        .insert(inventoryTable)
         .values({
           name: body.name,
         })
@@ -38,7 +39,8 @@ export async function CreateInventoryHandler(req: NextRequest) {
   }
 }
 
-export async function ListAllInventoryHandler(req: NextRequest) {
+// GET /inventories
+export async function ListInventoriesHandler(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
     const nameParam = searchParams.get("name");
@@ -47,47 +49,44 @@ export async function ListAllInventoryHandler(req: NextRequest) {
 
     const inventories = await db
       .select({
-        id: inventoriesTable.id,
-        name: inventoriesTable.name,
+        id: inventoryTable.id,
+        name: inventoryTable.name,
         stock: sql<number>`sum(${inventoryStockTable.stock})`,
       })
-      .from(inventoriesTable)
+      .from(inventoryTable)
       .innerJoin(
         inventoryStockTable,
-        eq(inventoriesTable.id, inventoryStockTable.inventory_id)
+        eq(inventoryTable.id, inventoryStockTable.inventory_id)
       )
-      .where(like(inventoriesTable.name, name))
-      .groupBy(inventoriesTable.id);
+      .where(like(inventoryTable.name, name))
+      .groupBy(inventoryTable.id);
 
-    let listInventories: Inventory[] = [];
-
-    inventories.forEach((v) => {
-      const inventory: Inventory = {
-        name: v.name,
-        stock: v.stock,
-        id: v.id,
+    const listInventories: ListInventoriesResponse = inventories.map((i) => {
+      return {
+        id: i.id,
+        name: i.name,
+        stock: i.stock,
       };
-
-      listInventories.push(inventory);
     });
 
-    return ResponseOk(listInventories, "sukses menampilkan persediaan");
+    return ResponseOk(listInventories, "sukses mendapatkan data persediaan");
   } catch (error) {
-    return ResponseErr("gagal menampilkan persediaan", error);
+    return ResponseErr("gagal mendapatkan data persediaan", error);
   }
 }
 
+// PUT /inventories/[id]
 export async function EditInventoryHandler(req: NextRequest, id: string) {
   try {
     const json = await req.json();
-    const body = EditInventorySchema.parse(json);
+    const body = EditInventoryRequest.parse(json);
 
     await db
-      .update(inventoriesTable)
+      .update(inventoryTable)
       .set({
         name: body.name,
       })
-      .where(eq(inventoriesTable.id, Number(id)));
+      .where(eq(inventoryTable.id, Number(id)));
 
     return ResponseOk(null, "sukses mengubah persediaan");
   } catch (error) {
@@ -97,9 +96,7 @@ export async function EditInventoryHandler(req: NextRequest, id: string) {
 
 export async function DeleteInventoryHandler(req: NextRequest, id: string) {
   try {
-    await db
-      .delete(inventoriesTable)
-      .where(eq(inventoriesTable.id, Number(id)));
+    await db.delete(inventoryTable).where(eq(inventoryTable.id, Number(id)));
 
     return ResponseOk(null, "sukses menghapus persediaan");
   } catch (error) {
@@ -107,24 +104,24 @@ export async function DeleteInventoryHandler(req: NextRequest, id: string) {
   }
 }
 
-export async function ManageStockHandler(req: NextRequest, id: string) {
+export async function ManageInventoryHandler(req: NextRequest, id: string) {
   try {
     const json = await req.json();
-    const body = ManageInventorySchema.parse(json);
+    const body = ManageInventoryRequest.parse(json);
 
     await db.transaction(async (tx) => {
       const [sQty] = await tx
         .select({
-          id: inventoriesTable.id,
+          id: inventoryTable.id,
           sum_qty: sql<number>`sum(${inventoryStockTable.stock})`,
         })
-        .from(inventoriesTable)
-        .where(eq(inventoriesTable.id, Number(id)))
+        .from(inventoryTable)
+        .where(eq(inventoryTable.id, Number(id)))
         .innerJoin(
           inventoryStockTable,
-          eq(inventoriesTable.id, inventoryStockTable.inventory_id)
+          eq(inventoryTable.id, inventoryStockTable.inventory_id)
         )
-        .groupBy(inventoriesTable.id);
+        .groupBy(inventoryTable.id);
 
       if (body.stock < 0) {
         if (sQty.sum_qty + body.stock < 0) {
@@ -152,8 +149,8 @@ export async function ListInventoryStockHandler(req: NextRequest) {
       .select()
       .from(inventoryStockTable)
       .innerJoin(
-        inventoriesTable,
-        eq(inventoryStockTable.inventory_id, inventoriesTable.id)
+        inventoryTable,
+        eq(inventoryStockTable.inventory_id, inventoryTable.id)
       )
       .orderBy(desc(inventoryStockTable.created_at));
 

@@ -28,9 +28,9 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
 import { ButtonLoading } from "../ui/button-loading";
 
-import { AddInventorySchema } from "@/app/dto/inventory-dto";
+import { AddInventoryRequest } from "@/app/dto/inventory-dto";
 
-const defaultValues: z.infer<typeof AddInventorySchema> = {
+const defaultValues: z.infer<typeof AddInventoryRequest> = {
   name: "",
   stock: 0,
   price: 0,
@@ -40,12 +40,12 @@ export const AddInventoryButton = () => {
   const { mutate, isSuccess, isPending } = Mutation(["getInventories"], true);
   const [open, setOpen] = useState<boolean>(false);
 
-  const form = useForm<z.infer<typeof AddInventorySchema>>({
-    resolver: zodResolver(AddInventorySchema),
+  const form = useForm<z.infer<typeof AddInventoryRequest>>({
+    resolver: zodResolver(AddInventoryRequest),
     defaultValues,
   });
 
-  const onSubmit = (values: z.infer<typeof AddInventorySchema>) => {
+  const onSubmit = (values: z.infer<typeof AddInventoryRequest>) => {
     mutate({
       body: values,
       method: HttpMethod.POST,

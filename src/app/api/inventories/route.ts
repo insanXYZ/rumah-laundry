@@ -1,13 +1,13 @@
 import { NextRequest } from "next/server";
 import {
-  CreateInventoryHandler,
-  ListAllInventoryHandler,
+  AddInventoryHandler,
+  ListInventoriesHandler,
 } from "../handler/inventory-handler";
 
 export async function POST(req: NextRequest) {
-  return CreateInventoryHandler(req);
+  return AddInventoryHandler(req);
 }
 
 export async function GET(req: NextRequest) {
-  return ListAllInventoryHandler(req);
+  return ListInventoriesHandler(req);
 }

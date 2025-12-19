@@ -1,0 +1,1 @@
+ALTER TABLE `customers` MODIFY COLUMN `type` varchar(10) NOT NULL;

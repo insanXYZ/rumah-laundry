@@ -13,7 +13,7 @@ import {
 import { Icon } from "@iconify/react";
 import { useEffect } from "react";
 
-export function DeleteMonthlyButton({ id }: { id: string }) {
+export function DeleteMonthlyButton({ id }: { id: number }) {
   const { mutate } = Mutation(["getSmm"], true);
 
   const onSubmit = () => {
@@ -31,9 +31,9 @@ export function DeleteMonthlyButton({ id }: { id: string }) {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Konfirmasi hapus pelanggan</AlertDialogTitle>
+          <AlertDialogTitle>Konfirmasi hapus pembayaran</AlertDialogTitle>
           <AlertDialogDescription>
-            Apakah kamu yakin ingin menghapus pelanggan ini?
+            Apakah kamu yakin ingin menghapus pembayaram bulanan santri ini?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

@@ -1,15 +1,10 @@
 "use client";
 
-import { GetInformationDashoard } from "@/app/dto/dashboard-dto";
+import { GetInformationDashoardResponse } from "@/app/dto/dashboard-dto";
 import { CardDashboard } from "@/components/dashboard/card-dashboard";
 import { FilterDashboardButton } from "@/components/dashboard/filter-dashboard";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -18,11 +13,14 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { useQueryData } from "@/utils/tanstack";
 
 import { ConvertRupiah } from "@/utils/utils";
 import { DateTime } from "luxon";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 const chartConfig = {
@@ -52,14 +50,14 @@ export default function DasboardPage() {
     return `/dashboard${params.toString() ? `?${params}` : ""}`;
   };
 
-  const { data, isSuccess } = useQueryData(
+  const { data } = useQueryData(
     [startDate, lastDate],
     buildDashboardUrl(startDate, lastDate)
   );
 
-  const dashboard: GetInformationDashoard = data?.data;
+  const dashboard: GetInformationDashoardResponse = data?.data;
 
-  const [timeRange, setTimeRange] = useState("30d");
+  const [timeRange] = useState("30d");
   const filteredData = useMemo(() => {
     if (!dashboard?.chart_income_expends?.length) return [];
 

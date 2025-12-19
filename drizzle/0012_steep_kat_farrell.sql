@@ -1,0 +1,1 @@
+ALTER TABLE `customers` MODIFY COLUMN `created_at` timestamp NOT NULL DEFAULT (now());

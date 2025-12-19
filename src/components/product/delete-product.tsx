@@ -17,10 +17,7 @@ import {
 } from "../ui/alert-dialog";
 
 export const DeleteProductButton = ({ id }: { id: number }) => {
-  const { mutate, data, isSuccess, isPending } = Mutation(
-    ["getProducts"],
-    true
-  );
+  const { mutate } = Mutation(["getProducts"], true);
 
   const onSubmit = () => {
     mutate({

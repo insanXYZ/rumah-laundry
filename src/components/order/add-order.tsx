@@ -27,7 +27,10 @@ import { Button } from "../ui/button";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
 import { ButtonLoading } from "../ui/button-loading";
-import { AddOrderSchema } from "@/app/dto/order-dto";
+import {
+  AddOrderRequest,
+  ListOrderCustomersResponse,
+} from "@/app/dto/order-dto";
 import { Combobox, ItemCombobox } from "../ui/combobox";
 import {
   Table,
@@ -38,11 +41,11 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { Product } from "@/app/dto/product-dto";
 import { ConvertRupiah } from "@/utils/utils";
-import { Customer } from "@/app/dto/customer-dto";
+import { ListProductsResponse } from "@/app/dto/product-dto";
+import { Customer } from "@/db/schema";
 
-const defaultValues: z.infer<typeof AddOrderSchema> = {
+const defaultValues: z.infer<typeof AddOrderRequest> = {
   customer_id: "",
   items: [
     {
@@ -53,34 +56,32 @@ const defaultValues: z.infer<typeof AddOrderSchema> = {
 };
 
 export const AddOrderButton = () => {
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [customers, setCustomers] = useState<ListOrderCustomersResponse>([]);
   const [itemComboboxCustomer, setItemComboboxCustomer] = useState<
     ItemCombobox[]
   >([]);
 
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ListProductsResponse>([]);
   const [itemComboboxProducts, setItemComboboxProducts] = useState<
     ItemCombobox[]
   >([]);
 
-  const { mutate, data, isSuccess, isPending } = Mutation(["getOrders"], true);
+  const { mutate, isSuccess } = Mutation(["getOrders"], true);
 
-  const {
-    isPending: pendingCustomer,
-    isSuccess: successCustomer,
-    data: dataCustomer,
-  } = useQueryData(["getOrderCustomers"], "/orders/customers");
+  const { isSuccess: successCustomer, data: dataCustomer } = useQueryData(
+    ["getOrderCustomers"],
+    "/orders/customers"
+  );
 
-  const {
-    isPending: pendingProduct,
-    isSuccess: successProduct,
-    data: dataProduct,
-  } = useQueryData(["getProducts"], "/products");
+  const { isSuccess: successProduct, data: dataProduct } = useQueryData(
+    ["getProducts"],
+    "/products"
+  );
 
   const [open, setOpen] = useState<boolean>(false);
 
-  const form = useForm<z.infer<typeof AddOrderSchema>>({
-    resolver: zodResolver(AddOrderSchema),
+  const form = useForm<z.infer<typeof AddOrderRequest>>({
+    resolver: zodResolver(AddOrderRequest),
     defaultValues,
   });
 
@@ -89,7 +90,7 @@ export const AddOrderButton = () => {
     name: "items",
   });
 
-  const onSubmit = (values: z.infer<typeof AddOrderSchema>) => {
+  const onSubmit = (values: z.infer<typeof AddOrderRequest>) => {
     mutate({
       body: values,
       method: HttpMethod.POST,

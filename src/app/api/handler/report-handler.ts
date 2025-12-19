@@ -1,14 +1,14 @@
 import db from "@/db";
 import {
-  customersTable,
-  inventoriesTable,
+  customerTable,
   inventoryStockTable,
+  inventoryTable,
   orderItemTable,
   orderTable,
-  productsTable,
+  productTable,
 } from "@/db/schema";
 import { ResponseErr } from "@/utils/http";
-import { ConvertRupiah, GetPayload } from "@/utils/utils";
+import { getPayloadJwt } from "@/utils/utils";
 import { and, between, desc, eq, gt } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { NextRequest, NextResponse } from "next/server";
@@ -16,7 +16,7 @@ import ExcelJS from "exceljs";
 
 export async function ReportOrderHandler(req: NextRequest) {
   try {
-    const payload = GetPayload(req);
+    const payload = getPayloadJwt(req);
     const now = DateTime.now().setZone(payload.tz);
     const startDate = now.startOf("month").toJSDate();
     const endDate = now.endOf("month").toJSDate();
@@ -24,9 +24,9 @@ export async function ReportOrderHandler(req: NextRequest) {
     const orders = await db
       .select()
       .from(orderTable)
-      .innerJoin(customersTable, eq(customersTable.id, orderTable.customer_id))
+      .innerJoin(customerTable, eq(customerTable.id, orderTable.customer_id))
       .innerJoin(orderItemTable, eq(orderItemTable.order_id, orderTable.id))
-      .innerJoin(productsTable, eq(orderItemTable.product_id, productsTable.id))
+      .innerJoin(productTable, eq(orderItemTable.product_id, productTable.id))
       .where(between(orderTable.created_at, startDate, endDate))
       .orderBy(desc(orderTable.created_at));
 
@@ -83,7 +83,7 @@ export async function ReportOrderHandler(req: NextRequest) {
 
 export async function ReportExpendHandler(req: NextRequest) {
   try {
-    const payload = GetPayload(req);
+    const payload = getPayloadJwt(req);
     const now = DateTime.now().setZone(payload.tz);
     const startDate = now.startOf("month").toJSDate();
     const endDate = now.endOf("month").toJSDate();
@@ -98,8 +98,8 @@ export async function ReportExpendHandler(req: NextRequest) {
         )
       )
       .innerJoin(
-        inventoriesTable,
-        eq(inventoriesTable.id, inventoryStockTable.inventory_id)
+        inventoryTable,
+        eq(inventoryTable.id, inventoryStockTable.inventory_id)
       )
       .orderBy(desc(inventoryStockTable.created_at));
 

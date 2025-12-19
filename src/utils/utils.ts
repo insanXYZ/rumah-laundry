@@ -1,4 +1,5 @@
-import { PayloadJWT } from "@/types/jwt";
+import { PayloadJWT } from "@/types/types";
+import { DateTime } from "luxon";
 import { NextRequest } from "next/server";
 
 export const ConvertRupiah = (amount: number) => {
@@ -48,8 +49,12 @@ export const toUTC = (date: Date): Date => {
   );
 };
 
-export const GetPayload = (req: NextRequest): PayloadJWT => {
+export const getPayloadJwt = (req: NextRequest): PayloadJWT => {
   const payload = req.headers.get("x-user-payload");
 
   return JSON.parse(payload!) as PayloadJWT;
+};
+
+export const dateToTimezone = (date: Date, timezone: string): Date => {
+  return DateTime.fromJSDate(date).setZone(timezone).toJSDate();
 };

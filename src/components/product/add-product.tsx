@@ -35,27 +35,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { AddProductSchema } from "@/app/dto/product-dto";
+import { AddProductRequest } from "@/app/dto/product-dto";
 
-const defaultValues: z.infer<typeof AddProductSchema> = {
+const defaultValues: z.infer<typeof AddProductRequest> = {
   name: "",
   price: 0,
   unit: "kg",
 };
 
 export const AddProductButton = () => {
-  const { mutate, data, isSuccess, isPending } = Mutation(
-    ["getProducts"],
-    true
-  );
+  const { mutate, isSuccess, isPending } = Mutation(["getProducts"], true);
   const [open, setOpen] = useState<boolean>(false);
 
-  const form = useForm<z.infer<typeof AddProductSchema>>({
-    resolver: zodResolver(AddProductSchema),
+  const form = useForm<z.infer<typeof AddProductRequest>>({
+    resolver: zodResolver(AddProductRequest),
     defaultValues,
   });
 
-  const onSubmit = (values: z.infer<typeof AddProductSchema>) => {
+  const onSubmit = (values: z.infer<typeof AddProductRequest>) => {
     mutate({
       body: values,
       method: HttpMethod.POST,

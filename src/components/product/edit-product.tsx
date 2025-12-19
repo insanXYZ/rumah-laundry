@@ -32,31 +32,28 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { EditProductSchema, Product } from "@/app/dto/product-dto";
+import { EditProductRequest } from "@/app/dto/product-dto";
+import { Product } from "@/db/schema";
 
 export const EditProductButton = ({ values }: { values: Product }) => {
-  const { mutate, data, isSuccess, isPending } = Mutation(
-    ["getProducts"],
-    true
-  );
+  const { mutate, isSuccess, isPending } = Mutation(["getProducts"], true);
   const [open, setOpen] = useState<boolean>(false);
 
-  const defaultValues: z.infer<typeof EditProductSchema> = {
+  const defaultValues: z.infer<typeof EditProductRequest> = {
     name: values.name,
     price: values.price,
     unit: values.unit,
   };
 
-  const form = useForm<z.infer<typeof EditProductSchema>>({
-    resolver: zodResolver(EditProductSchema),
+  const form = useForm<z.infer<typeof EditProductRequest>>({
+    resolver: zodResolver(EditProductRequest),
     defaultValues,
   });
 
-  const onSubmit = (body: z.infer<typeof EditProductSchema>) => {
+  const onSubmit = (body: z.infer<typeof EditProductRequest>) => {
     mutate({
       body: body,
       method: HttpMethod.PUT,

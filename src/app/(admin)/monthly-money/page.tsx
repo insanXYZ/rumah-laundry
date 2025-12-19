@@ -4,10 +4,13 @@ import { DataTable } from "@/components/ui/datatable";
 import { useEffect, useState } from "react";
 import { useQueryData } from "@/utils/tanstack";
 import { ColumnDef } from "@tanstack/react-table";
-import { ListSantriMonthlyMoney } from "@/app/dto/monthly-money-dto";
+import {
+  ListSantriesMonthlyMoneyResponse,
+  ListSantriMonthlyMoney,
+} from "@/app/dto/monthly-money-dto";
 import { AddMonthlyMoneyButton } from "@/components/monthly-money/add-monthly";
 import { DeleteMonthlyButton } from "@/components/monthly-money/delete-monthly";
-import { formatToLocalTimezone } from "@/utils/utils";
+import { ConvertRupiah, formatToLocalTimezone } from "@/utils/utils";
 
 const columns: ColumnDef<ListSantriMonthlyMoney>[] = [
   {
@@ -19,6 +22,12 @@ const columns: ColumnDef<ListSantriMonthlyMoney>[] = [
     header: "Jenis Bulanan",
   },
   {
+    header: "Harga",
+    cell: ({ row }) => {
+      return ConvertRupiah(row.original.amount);
+    },
+  },
+  {
     header: "Tanggal",
     cell: ({ row }) => {
       return formatToLocalTimezone(row.original.created_at);
@@ -27,18 +36,15 @@ const columns: ColumnDef<ListSantriMonthlyMoney>[] = [
   {
     header: "Aksi",
     cell: ({ row }) => {
-      return <DeleteMonthlyButton id={row.original.id.toString()} />;
+      return <DeleteMonthlyButton id={row.original.id} />;
     },
   },
 ];
 
 export default function MonthlyMoneyPage() {
-  const [smm, setSmm] = useState<ListSantriMonthlyMoney[]>([]);
+  const [smm, setSmm] = useState<ListSantriesMonthlyMoneyResponse>([]);
 
-  const { isPending, isSuccess, data } = useQueryData(
-    ["getSmm"],
-    "/monthly-moneys"
-  );
+  const { isSuccess, data } = useQueryData(["getSmm"], "/monthly-moneys");
 
   useEffect(() => {
     if (isSuccess && data?.data) {

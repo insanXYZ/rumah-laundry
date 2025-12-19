@@ -1,10 +1,5 @@
+import { ChargeSantri } from "@/db/schema";
 import z from "zod";
-
-export const acceptedTypeMonthlyMoney: string[] = ["cuci saja", "cuci setrika"];
-export const priceTypeMonthlyMoney = new Map<string, number>([
-  [acceptedTypeMonthlyMoney[0], 100000],
-  [acceptedTypeMonthlyMoney[1], 140000],
-]);
 
 export interface SantriMonthlyMoney {
   id: number;
@@ -15,12 +10,26 @@ export interface SantriMonthlyMoney {
 export interface ListSantriMonthlyMoney {
   id: number;
   customer_id: number;
+  amount: number;
   type: string;
   name: string;
   created_at: Date;
 }
 
-export const AddSantriMonthlyMoneySchema = z.object({
+export type ListSantriesMonthlyMoneyResponse = ListSantriMonthlyMoney[];
+
+export interface ListCharge {
+  id: number;
+  name: string;
+  quantity: number;
+  total_price: number;
+  payed: boolean;
+  period: string;
+}
+
+export type ListChargesResponse = ListCharge[];
+
+export const AddSantriMonthlyMoneyRequest = z.object({
   customer_id: z.string().min(1, {
     error: "pelanggan wajib diisi",
   }),

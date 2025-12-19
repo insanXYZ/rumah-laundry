@@ -1,27 +1,28 @@
 import {
-  AddProductSchema,
-  EditProductSchema,
-  Product,
+  AddProductRequest,
+  EditProductRequest,
+  ListProductsResponse,
 } from "@/app/dto/product-dto";
 import db from "@/db";
-import { productsTable } from "@/db/schema";
+import { productTable } from "@/db/schema";
+import { ACCEPTED_STATUS_ORDER, ACCEPTED_UNIT } from "@/types/types";
 import { ResponseErr, ResponseOk } from "@/utils/http";
+import { dateToTimezone, getPayloadJwt } from "@/utils/utils";
 import { eq, like } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
-export const acceptedUnit: string[] = ["kg", "pcs"];
-
-export async function CreateProductHandler(req: NextRequest) {
+// POST /products
+export async function AddProductHandler(req: NextRequest) {
   try {
     const json = await req.json();
-    const body = AddProductSchema.parse(json);
+    const body = AddProductRequest.parse(json);
 
-    if (!acceptedUnit.includes(body.unit)) {
-      return ResponseErr("unit tidak valid");
+    if (!ACCEPTED_STATUS_ORDER.includes(body.unit)) {
+      throw new Error("unit tidak valid");
     }
 
     await db
-      .insert(productsTable)
+      .insert(productTable)
       .values({
         name: body.name,
         price: body.price,
@@ -35,53 +36,53 @@ export async function CreateProductHandler(req: NextRequest) {
   }
 }
 
-export async function ListAllProductsHandler(req: NextRequest) {
+// GET /products
+export async function ListProductsHandler(req: NextRequest) {
   try {
+    const payload = getPayloadJwt(req);
     const searchParams = req.nextUrl.searchParams;
+
     const nameParam = searchParams.get("name");
     let name = nameParam ? `%${nameParam}%` : "%%";
 
     const products = await db
       .select()
-      .from(productsTable)
-      .where(like(productsTable.name, name));
+      .from(productTable)
+      .where(like(productTable.name, name));
 
-    let listProducts: Product[] = [];
-
-    products.forEach((v) => {
-      const product: Product = {
-        name: v.name,
-        price: v.price,
-        unit: v.unit,
-        id: v.id,
+    const listProducts: ListProductsResponse = products.map((p) => {
+      return {
+        id: p.id,
+        name: p.name,
+        created_at: dateToTimezone(p.created_at!, payload.tz),
+        price: p.price,
+        unit: p.unit,
       };
-
-      listProducts.push(product);
     });
 
-    return ResponseOk(listProducts, "sukses menampilkan products");
+    return ResponseOk(listProducts, "sukses mendapatkan data products");
   } catch (error) {
-    return ResponseErr("gagal menampilkan products", error);
+    return ResponseErr("gagal mendapatkan data products", error);
   }
 }
 
 export async function EditProductHandler(req: NextRequest, id: string) {
   try {
     const json = await req.json();
-    const body = EditProductSchema.parse(json);
+    const body = EditProductRequest.parse(json);
 
-    if (!acceptedUnit.includes(body.unit)) {
+    if (!ACCEPTED_UNIT.includes(body.unit)) {
       return ResponseErr("unit tidak valid");
     }
 
     await db
-      .update(productsTable)
+      .update(productTable)
       .set({
         name: body.name,
         price: body.price,
         unit: body.unit,
       })
-      .where(eq(productsTable.id, Number(id)));
+      .where(eq(productTable.id, Number(id)));
 
     return ResponseOk(null, "sukses mengubah product");
   } catch (error) {
@@ -91,7 +92,7 @@ export async function EditProductHandler(req: NextRequest, id: string) {
 
 export async function DeleteProductHandler(req: NextRequest, id: string) {
   try {
-    await db.delete(productsTable).where(eq(productsTable.id, Number(id)));
+    await db.delete(productTable).where(eq(productTable.id, Number(id)));
     return ResponseOk(null, "sukses menghapus product");
   } catch (error) {
     return ResponseErr("gagal menghapus product", error);

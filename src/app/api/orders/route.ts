@@ -8,6 +8,6 @@ export async function POST(req: NextRequest) {
   return CreateOrderHandler(req);
 }
 
-export async function GET() {
-  return ListOrdersHandler();
+export async function GET(req: NextRequest) {
+  return ListOrdersHandler(req);
 }

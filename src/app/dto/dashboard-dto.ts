@@ -4,7 +4,7 @@ export interface ChartIncomeExpend {
   expend: number;
 }
 
-export interface GetInformationDashoard {
+export interface GetInformationDashoardResponse {
   income: number;
   expend: number;
   total_order: number;

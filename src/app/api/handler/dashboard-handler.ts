@@ -1,12 +1,14 @@
-import {
-  ChartIncomeExpend,
-  GetInformationDashoard,
-} from "@/app/dto/dashboard-dto";
-import { acceptedStatusOrder } from "@/app/dto/order-dto";
+import { GetInformationDashoardResponse } from "@/app/dto/dashboard-dto";
 import db from "@/db";
-import { inventoryStockTable, orderItemTable, orderTable } from "@/db/schema";
+import {
+  inventoryStockTable,
+  orderItemTable,
+  orderTable,
+  santriMonthlyMoneyTable,
+} from "@/db/schema";
+import { ACCEPTED_STATUS_ORDER } from "@/types/types";
 import { ResponseErr, ResponseOk } from "@/utils/http";
-import { GetPayload, toUTC } from "@/utils/utils";
+import { getPayloadJwt, toUTC } from "@/utils/utils";
 import { endOfDay } from "date-fns";
 import { and, between, eq, sql } from "drizzle-orm";
 import { DateTime } from "luxon";
@@ -15,7 +17,7 @@ import { NextRequest } from "next/server";
 export async function GetDashboardItemHandler(req: NextRequest) {
   try {
     const params = req.nextUrl.searchParams;
-    const payload = GetPayload(req);
+    const payload = getPayloadJwt(req);
     const now = DateTime.now();
     const startParam = params.get("start");
     const lastParam = params.get("last");
@@ -32,7 +34,7 @@ export async function GetDashboardItemHandler(req: NextRequest) {
         : now.endOf("month")
     ).endOf("day");
 
-    const res: GetInformationDashoard = {
+    const res: GetInformationDashoardResponse = {
       chart_income_expends: [],
       expend: 0,
       income: 0,
@@ -55,7 +57,7 @@ export async function GetDashboardItemHandler(req: NextRequest) {
       .from(orderTable)
       .where(
         and(
-          eq(orderTable.status, acceptedStatusOrder[1]),
+          eq(orderTable.status, ACCEPTED_STATUS_ORDER[1]),
           between(
             orderTable.created_at,
             startDate.toJSDate(),
@@ -92,6 +94,19 @@ export async function GetDashboardItemHandler(req: NextRequest) {
         )
       );
 
+    const monthlyMoneys = await db
+      .select({
+        total_amount: sql<number>`sum(${santriMonthlyMoneyTable.amount})`,
+      })
+      .from(santriMonthlyMoneyTable)
+      .where(
+        between(
+          santriMonthlyMoneyTable.created_at,
+          startDate.toJSDate(),
+          lastDate.toJSDate()
+        )
+      );
+
     const income = itemOrders.reduce((sum, item) => {
       return sum + Number(item.total_price ?? 0);
     }, 0);
@@ -105,7 +120,9 @@ export async function GetDashboardItemHandler(req: NextRequest) {
       return acc;
     }, {});
 
-    res.income = income;
+    res.income =
+      income +
+      (monthlyMoneys.length != 0 ? Number(monthlyMoneys[0].total_amount) : 0);
 
     const inventoriStocks = await db
       .select()
@@ -144,7 +161,6 @@ export async function GetDashboardItemHandler(req: NextRequest) {
 
     return ResponseOk(res, "sukses mendapatkan informasi dashboard");
   } catch (error) {
-    console.error("Error in GetDashboardItemHandler:", error);
     return ResponseErr("gagal mendapatkan data dashboard", error);
   }
 }

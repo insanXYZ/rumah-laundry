@@ -1,4 +1,3 @@
-import { EditStatusOrderSchema } from "@/app/dto/order-dto";
 import { NextRequest } from "next/server";
 import { UpdateStatusOrderHandler } from "../../../handler/order-handler";
 

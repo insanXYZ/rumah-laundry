@@ -1,14 +1,13 @@
-import { ResponseOk } from "@/utils/http";
 import { NextRequest } from "next/server";
 import {
-  CreateMonthlyMoneyHandler,
-  ListAllMonthlyMoneyHandler,
+  AddSantriMonthlyMoneyHandler,
+  ListMonthlyMoneysHandler,
 } from "../handler/monthly-money-handler";
 
 export async function POST(req: NextRequest) {
-  return CreateMonthlyMoneyHandler(req);
+  return AddSantriMonthlyMoneyHandler(req);
 }
 
 export async function GET() {
-  return ListAllMonthlyMoneyHandler();
+  return ListMonthlyMoneysHandler();
 }

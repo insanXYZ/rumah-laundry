@@ -1,5 +1,6 @@
-import { ListAllOrderCustomerHandler } from "../../handler/customer-handler";
+import { NextRequest } from "next/server";
+import { ListOrderCustomersHandler } from "../../handler/customer-handler";
 
-export async function GET() {
-  return ListAllOrderCustomerHandler();
+export async function GET(req: NextRequest) {
+  return ListOrderCustomersHandler(req);
 }

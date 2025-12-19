@@ -1,4 +1,4 @@
-import { ManageStockHandler } from "@/app/api/handler/inventory-handler";
+import { ManageInventoryHandler } from "@/app/api/handler/inventory-handler";
 import { NextRequest } from "next/server";
 
 export async function PUT(
@@ -7,5 +7,5 @@ export async function PUT(
 ) {
   const { id } = await ctx.params;
 
-  return ManageStockHandler(req, id);
+  return ManageInventoryHandler(req, id);
 }

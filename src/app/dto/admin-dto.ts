@@ -1,12 +1,6 @@
 import z from "zod";
 
-export interface Admin {
-  id: number;
-  name: string;
-  email: string;
-}
-
-export const LoginRequestSchema = z.object({
+export const LoginRequest = z.object({
   email: z.email({
     error: "Email tidak valid",
   }),

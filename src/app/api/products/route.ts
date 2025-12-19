@@ -1,13 +1,13 @@
 import { NextRequest } from "next/server";
 import {
-  CreateProductHandler,
-  ListAllProductsHandler,
+  AddProductHandler,
+  ListProductsHandler,
 } from "../handler/product-handler";
 
 export async function POST(req: NextRequest) {
-  return CreateProductHandler(req);
+  return AddProductHandler(req);
 }
 
 export async function GET(req: NextRequest) {
-  return ListAllProductsHandler(req);
+  return ListProductsHandler(req);
 }

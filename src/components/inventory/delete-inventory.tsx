@@ -3,7 +3,6 @@
 import { Icon } from "@iconify/react";
 
 import { HttpMethod, Mutation } from "@/utils/tanstack";
-import { useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,10 +16,7 @@ import {
 } from "../ui/alert-dialog";
 
 export const DeleteInventoryButton = ({ id }: { id: number }) => {
-  const { mutate, data, isSuccess, isPending } = Mutation(
-    ["getInventories"],
-    true
-  );
+  const { mutate } = Mutation(["getInventories"], true);
 
   const onSubmit = () => {
     mutate({

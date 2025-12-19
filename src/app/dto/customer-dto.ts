@@ -1,20 +1,15 @@
+import { Customer } from "@/db/schema";
 import z from "zod";
-
-export interface Customer {
-  id?: number;
-  name: string;
-  class?: string;
-  number_phone: string;
-  type: "santri" | "umum";
-  address?: string;
-  type_monthly_money?: string;
-}
 
 export interface ListCustomerMonthly {
   id: number;
   name: string;
   charge_qty: string;
 }
+
+export type ListCustomersMonthlyResponse = ListCustomerMonthly[];
+
+export type ListCustomersResponse = Customer[];
 
 const Base = z.object({
   name: z.string().min(1, {
@@ -27,7 +22,7 @@ const Base = z.object({
   address: z.string().optional(),
 });
 
-export const AddCustomerSchema = z.discriminatedUnion("type", [
+export const AddCustomerRequest = z.discriminatedUnion("type", [
   Base.extend({
     type: z.literal("santri"),
     class: z.string().min(1, {
@@ -42,13 +37,17 @@ export const AddCustomerSchema = z.discriminatedUnion("type", [
   }),
 ]);
 
-export const EditCustomerSchema = z.discriminatedUnion("type", [
+export const EditCustomerRequest = z.discriminatedUnion("type", [
   Base.extend({
     type: z.literal("santri"),
-    class: z.string(),
+    class: z.string().min(1, {
+      error: "kelas wajib diisi",
+    }),
   }),
   Base.extend({
     type: z.literal("umum"),
-    address: z.string(),
+    address: z.string().min(1, {
+      error: "alamat wajib diisi",
+    }),
   }),
 ]);

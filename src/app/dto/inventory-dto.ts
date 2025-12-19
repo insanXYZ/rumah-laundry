@@ -1,10 +1,5 @@
+import { Inventory } from "@/db/schema";
 import z from "zod";
-
-export interface Inventory {
-  id?: number;
-  name: string;
-  stock: number;
-}
 
 export interface ListInventoryStock {
   name: string;
@@ -14,7 +9,15 @@ export interface ListInventoryStock {
   created_at: Date;
 }
 
-export const AddInventorySchema = z.object({
+export interface ListInventory {
+  id: number;
+  name: string;
+  stock: number;
+}
+
+export type ListInventoriesResponse = ListInventory[];
+
+export const AddInventoryRequest = z.object({
   name: z.string().min(1, {
     error: "nama wajib diisi",
   }),
@@ -22,11 +25,11 @@ export const AddInventorySchema = z.object({
   price: z.number(),
 });
 
-export const EditInventorySchema = z.object({
+export const EditInventoryRequest = z.object({
   name: z.string().min(1),
 });
 
-export const ManageInventorySchema = z.object({
+export const ManageInventoryRequest = z.object({
   stock: z.number(),
   price: z.number().min(0),
   description: z.string(),

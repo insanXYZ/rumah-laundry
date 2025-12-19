@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
-import { ListCustomerMonthlyHandler } from "../../handler/customer-handler";
+import { ListCustomersMonthlyHandler } from "../../handler/customer-handler";
 
 export async function GET(req: NextRequest) {
-  return ListCustomerMonthlyHandler(req);
+  return ListCustomersMonthlyHandler(req);
 }

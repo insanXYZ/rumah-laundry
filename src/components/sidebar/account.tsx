@@ -26,8 +26,9 @@ import { Button } from "../ui/button";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
 import { ButtonLoading } from "../ui/button-loading";
-import { Admin, EditAccountSchema } from "@/app/dto/admin-dto";
+import { EditAccountSchema } from "@/app/dto/admin-dto";
 import { BadgeCheck } from "lucide-react";
+import { Admin } from "@/db/schema";
 
 export const AccountAdminButton = ({ values }: { values: Admin }) => {
   const [open, setOpen] = useState<boolean>(false);

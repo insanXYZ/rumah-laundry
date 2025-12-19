@@ -5,13 +5,14 @@ import { useEffect, useState } from "react";
 import { useQueryData } from "@/utils/tanstack";
 import { ColumnDef } from "@tanstack/react-table";
 import { AddOrderButton } from "@/components/order/add-order";
-import { acceptedStatusOrder, ListOrder } from "@/app/dto/order-dto";
 import { ConvertRupiah, formatToLocalTimezone } from "@/utils/utils";
 import { ConfirmDoneOrderButton } from "@/components/order/confirm-done-order";
 import { DeleteOrderButton } from "@/components/order/delete-order";
 import { PrintOrderButton } from "@/components/order/print-order";
 import { ViewOrderButton } from "@/components/order/view-order";
 import { ExportExcelOrderButton } from "@/components/order/export-excel";
+import { ListOrder, ListOrdersResponse } from "@/app/dto/order-dto";
+import { ACCEPTED_STATUS_ORDER } from "@/types/types";
 
 const columns: ColumnDef<ListOrder>[] = [
   {
@@ -46,7 +47,7 @@ const columns: ColumnDef<ListOrder>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex gap-2 items-center">
-          {row.original.status === acceptedStatusOrder[0] ? (
+          {row.original.status === ACCEPTED_STATUS_ORDER[0] ? (
             <>
               <ConfirmDoneOrderButton values={row.original} />
               <DeleteOrderButton values={row.original} />
@@ -62,9 +63,9 @@ const columns: ColumnDef<ListOrder>[] = [
 ];
 
 export default function OrderPage() {
-  const [orders, setOrders] = useState<ListOrder[]>([]);
+  const [orders, setOrders] = useState<ListOrdersResponse>([]);
 
-  const { isPending, isSuccess, data } = useQueryData(["getOrders"], "/orders");
+  const { isSuccess, data } = useQueryData(["getOrders"], "/orders");
 
   useEffect(() => {
     if (isSuccess && data?.data) {

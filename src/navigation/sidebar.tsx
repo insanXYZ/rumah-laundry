@@ -1,6 +1,6 @@
 export interface sidebarMenu {
   label: string;
-  icon: string;
+  icon?: string;
   isActive?: boolean;
   url?: string;
   children?: sidebarMenu[];
@@ -22,12 +22,10 @@ export const navigation: sidebarMenu[] = [
     icon: "material-symbols:inventory-rounded",
     children: [
       {
-        icon: "material-symbols:inventory-rounded",
         label: "Data Inventaris",
         url: "/inventory",
       },
       {
-        icon: "material-symbols:inventory-rounded",
         label: "Riwayat",
         url: "/inventory/history",
       },
@@ -46,6 +44,15 @@ export const navigation: sidebarMenu[] = [
   {
     label: "Bulanan Santri",
     icon: "material-symbols:finance-chip-outline",
-    url: "/monthly-money",
+    children: [
+      {
+        label: "Pembayaran",
+        url: "/monthly-money",
+      },
+      {
+        label: "Charge",
+        url: "/monthly-money/charge",
+      },
+    ],
   },
 ];
