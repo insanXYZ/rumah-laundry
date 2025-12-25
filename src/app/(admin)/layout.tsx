@@ -87,7 +87,7 @@ export default function RootLayout({
                     <SidebarMenuItem key={item.label}>
                       <SidebarMenuButton asChild>
                         <Link href={item.url!}>
-                          <Icon icon={item.icon} />
+                          <Icon icon={item.icon!} />
                           <span>{item.label}</span>
                         </Link>
                       </SidebarMenuButton>
@@ -109,7 +109,7 @@ export default function RootLayout({
                             className="cursor-pointer"
                           >
                             <div>
-                              <Icon icon={item.icon} />
+                              <Icon icon={item.icon!} />
                               <span>{item.label}</span>
                               <ChevronRight className="ml-auto group-data-[state=open]/collapsible:rotate-90" />
                             </div>

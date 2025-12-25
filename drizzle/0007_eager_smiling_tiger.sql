@@ -1,1 +1,0 @@
-ALTER TABLE `inventory_stock` ADD `price` int;

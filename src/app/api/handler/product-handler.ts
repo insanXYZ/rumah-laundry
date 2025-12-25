@@ -17,7 +17,7 @@ export async function AddProductHandler(req: NextRequest) {
     const json = await req.json();
     const body = AddProductRequest.parse(json);
 
-    if (!ACCEPTED_STATUS_ORDER.includes(body.unit)) {
+    if (!ACCEPTED_UNIT.includes(body.unit)) {
       throw new Error("unit tidak valid");
     }
 

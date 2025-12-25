@@ -1,6 +1,7 @@
 import {
   bigint,
   boolean,
+  datetime,
   decimal,
   int,
   mysqlTable,
@@ -91,7 +92,7 @@ export const inventoryTable = mysqlTable("inventories", {
     length: 100,
   }).notNull(),
   created_at: timestamp().defaultNow(),
-  deleted_at: timestamp(),
+  deleted_at: datetime(),
 });
 
 export interface InventoryStock {

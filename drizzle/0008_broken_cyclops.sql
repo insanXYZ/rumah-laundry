@@ -1,1 +1,0 @@
-ALTER TABLE `inventory_stock` MODIFY COLUMN `price` int DEFAULT 0;

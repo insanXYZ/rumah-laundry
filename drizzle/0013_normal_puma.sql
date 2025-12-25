@@ -1,1 +1,0 @@
-ALTER TABLE `charge_santries` RENAME COLUMN `amount` TO `total_price`;

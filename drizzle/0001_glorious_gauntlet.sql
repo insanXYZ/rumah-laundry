@@ -1,1 +1,0 @@
-ALTER TABLE `santri_monthly_moneys` ADD `type` varchar(100) NOT NULL;
