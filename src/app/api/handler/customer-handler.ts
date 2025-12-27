@@ -12,7 +12,7 @@ import {
   santriMonthlyMoneyTable,
 } from "@/db/schema";
 import { ResponseErr, ResponseOk } from "@/utils/http";
-import { getPayloadJwt } from "@/utils/utils";
+import { getPayloadJwt, timeNowUTC } from "@/utils/utils";
 import { and, between, eq, inArray, isNull, like, sql } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { NextRequest } from "next/server";
@@ -66,6 +66,7 @@ export async function AddCustomerHandler(req: NextRequest) {
         type: body.type,
         class: body.class,
         address: body.address,
+        created_at: timeNowUTC()
       })
       .execute();
 

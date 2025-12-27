@@ -8,8 +8,7 @@ import {
 } from "@/db/schema";
 import { ACCEPTED_STATUS_ORDER } from "@/types/types";
 import { ResponseErr, ResponseOk } from "@/utils/http";
-import { getPayloadJwt, toUTC } from "@/utils/utils";
-import { endOfDay } from "date-fns";
+import { getPayloadJwt } from "@/utils/utils";
 import { and, between, eq, sql } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { NextRequest } from "next/server";

@@ -13,7 +13,7 @@ import {
   PRICE_TYPE_MONTHLY_MONEY_MAP,
 } from "@/types/types";
 import { ResponseErr, ResponseOk } from "@/utils/http";
-import { dateToTimezone, getPayloadJwt } from "@/utils/utils";
+import { dateToTimezone, getPayloadJwt, timeNowUTC } from "@/utils/utils";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { NextRequest } from "next/server";
@@ -65,6 +65,7 @@ export async function AddSantriMonthlyMoneyHandler(req: NextRequest) {
         .insert(santriMonthlyMoneyTable)
         .values({
           type: body.type,
+          created_at: timeNowUTC(),
           amount:
             Number(PRICE_TYPE_MONTHLY_MONEY_MAP.get(body.type) ?? 0) +
             priceCharge,

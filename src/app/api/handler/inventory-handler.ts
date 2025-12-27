@@ -8,6 +8,7 @@ import {
 import db from "@/db";
 import { inventoryStockTable, inventoryTable } from "@/db/schema";
 import { ResponseErr, ResponseOk } from "@/utils/http";
+import { timeNowUTC } from "@/utils/utils";
 import { desc, eq, like, sql } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
@@ -22,6 +23,7 @@ export async function AddInventoryHandler(req: NextRequest) {
         .insert(inventoryTable)
         .values({
           name: body.name,
+          created_at: timeNowUTC()
         })
         .execute();
 
@@ -29,6 +31,7 @@ export async function AddInventoryHandler(req: NextRequest) {
         inventory_id: res[0].insertId,
         stock: body.stock,
         price: body.price,
+        created_at: timeNowUTC(),
         description: "inventaris baru",
       });
     });
@@ -132,6 +135,7 @@ export async function ManageInventoryHandler(req: NextRequest, id: string) {
       await tx.insert(inventoryStockTable).values({
         inventory_id: sQty.id,
         stock: body.stock,
+        created_at: timeNowUTC(),
         description: body.description,
         price: body.price,
       });

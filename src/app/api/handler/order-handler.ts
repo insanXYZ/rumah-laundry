@@ -20,7 +20,7 @@ import {
   SANTRI_LIMIT_KG_ORDER,
 } from "@/types/types";
 import { ResponseErr, ResponseOk } from "@/utils/http";
-import { dateToTimezone, getPayloadJwt } from "@/utils/utils";
+import { dateToTimezone, getPayloadJwt, timeNowUTC } from "@/utils/utils";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { NextRequest } from "next/server";
@@ -79,6 +79,7 @@ export async function CreateOrderHandler(req: NextRequest) {
         .values({
           customer_id: Number(body.customer_id),
           status: ACCEPTED_STATUS_ORDER[0],
+          created_at: timeNowUTC()
         })
         .execute();
 
@@ -92,6 +93,7 @@ export async function CreateOrderHandler(req: NextRequest) {
           product_id: Number(item.product_id),
           quantity: item.quantity.toString(),
           total_price: product.price * item.quantity,
+          created_at: timeNowUTC()
         };
 
         if (product.unit == ACCEPTED_UNIT[0]) {
@@ -151,6 +153,7 @@ export async function CreateOrderHandler(req: NextRequest) {
           await db.insert(chargeSantriTable).values({
             quantity: chargeQty.toString(),
             payed: false,
+            created_at: timeNowUTC(),
             total_price: chargeQty * SANTRI_CHARGE_PRICE,
             customer_id: customer.id,
           });

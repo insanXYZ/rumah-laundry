@@ -7,7 +7,7 @@ import db from "@/db";
 import { productTable } from "@/db/schema";
 import { ACCEPTED_STATUS_ORDER, ACCEPTED_UNIT } from "@/types/types";
 import { ResponseErr, ResponseOk } from "@/utils/http";
-import { dateToTimezone, getPayloadJwt } from "@/utils/utils";
+import { dateToTimezone, getPayloadJwt, timeNowUTC } from "@/utils/utils";
 import { eq, like } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
@@ -26,6 +26,7 @@ export async function AddProductHandler(req: NextRequest) {
       .values({
         name: body.name,
         price: body.price,
+        created_at: timeNowUTC(),
         unit: body.unit,
       })
       .execute();

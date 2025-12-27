@@ -35,20 +35,6 @@ export function formatToLocalTimezone(date: Date | string): string {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-export const toUTC = (date: Date): Date => {
-  return new Date(
-    Date.UTC(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate(),
-      date.getHours(),
-      date.getMinutes(),
-      date.getSeconds(),
-      date.getMilliseconds()
-    )
-  );
-};
-
 export const getPayloadJwt = (req: NextRequest): PayloadJWT => {
   const payload = req.headers.get("x-user-payload");
 
@@ -57,4 +43,12 @@ export const getPayloadJwt = (req: NextRequest): PayloadJWT => {
 
 export const dateToTimezone = (date: Date, timezone: string): Date => {
   return DateTime.fromJSDate(date).setZone(timezone).toJSDate();
+};
+
+export const dateToUtc = (date: Date) : Date =>   {
+  return DateTime.fromJSDate(date).toUTC().toJSDate();
+};
+
+export const timeNowUTC = () : Date =>  {
+  return DateTime.now().toUTC().toJSDate();
 };
