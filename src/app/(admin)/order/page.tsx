@@ -63,15 +63,7 @@ const columns: ColumnDef<ListOrder>[] = [
 ];
 
 export default function OrderPage() {
-  const [orders, setOrders] = useState<ListOrdersResponse>([]);
-
-  const { isSuccess, data } = useQueryData(["getOrders"], "/orders");
-
-  useEffect(() => {
-    if (isSuccess && data?.data) {
-      setOrders(data.data);
-    }
-  }, [isSuccess, data]);
+  const { data } = useQueryData(["getOrders"], "/orders");
 
   return (
     <div className="w-full flex flex-col gap-5">
@@ -80,7 +72,7 @@ export default function OrderPage() {
         <ExportExcelOrderButton />
       </div>
       <div className="w-full">
-        <DataTable columns={columns} data={orders} />
+        <DataTable columns={columns} data={data?.data ?? []} />
       </div>
     </div>
   );

@@ -42,15 +42,7 @@ const columns: ColumnDef<ListSantriMonthlyMoney>[] = [
 ];
 
 export default function MonthlyMoneyPage() {
-  const [smm, setSmm] = useState<ListSantriesMonthlyMoneyResponse>([]);
-
-  const { isSuccess, data } = useQueryData(["getSmm"], "/monthly-moneys");
-
-  useEffect(() => {
-    if (isSuccess && data?.data) {
-      setSmm(data.data);
-    }
-  }, [isSuccess, data]);
+  const { data } = useQueryData(["getSmm"], "/monthly-moneys");
 
   return (
     <div className="w-full flex flex-col gap-5">
@@ -58,7 +50,7 @@ export default function MonthlyMoneyPage() {
         <AddMonthlyMoneyButton />
       </div>
       <div className="w-full">
-        <DataTable columns={columns} data={smm} />
+        <DataTable columns={columns} data={data?.data ?? []} />
       </div>
     </div>
   );

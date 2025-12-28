@@ -42,19 +42,12 @@ const columns: ColumnDef<Product>[] = [
 ];
 
 export default function ServiceListPage() {
-  const [products, setProducts] = useState<ListProductsResponse>([]);
   const [searchProduct, setSearchProduct] = useState<string>();
 
-  const { isSuccess, data } = useQueryData(
+  const { data } = useQueryData(
     ["getProducts", searchProduct],
     searchProduct ? `/products?name=${searchProduct}` : "/products"
   );
-
-  useEffect(() => {
-    if (isSuccess && data?.data) {
-      setProducts(data.data);
-    }
-  }, [isSuccess, data]);
 
   return (
     <div className="w-full flex flex-col gap-5">
@@ -67,7 +60,7 @@ export default function ServiceListPage() {
         />
       </div>
       <div className="w-full">
-        <DataTable columns={columns} data={products} />
+        <DataTable columns={columns} data={data?.data ?? []} />
       </div>
     </div>
   );

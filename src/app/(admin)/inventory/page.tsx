@@ -37,19 +37,12 @@ const columns: ColumnDef<ListInventory>[] = [
 ];
 
 export default function InventoryPage() {
-  const [inventories, setInventories] = useState<ListInventoriesResponse>([]);
   const [searchInventory, setSearchInventory] = useState<string>("");
 
-  const { isSuccess, data } = useQueryData(
+  const { data } = useQueryData(
     ["getInventories", searchInventory],
     searchInventory ? `/inventories?name=${searchInventory}` : "/inventories"
   );
-
-  useEffect(() => {
-    if (isSuccess && data?.data) {
-      setInventories(data.data);
-    }
-  }, [isSuccess, data]);
 
   return (
     <div className="w-full flex flex-col gap-5">
@@ -65,7 +58,7 @@ export default function InventoryPage() {
         />
       </div>
       <div className="w-full">
-        <DataTable columns={columns} data={inventories} />
+        <DataTable columns={columns} data={data?.data ?? []} />
       </div>
     </div>
   );

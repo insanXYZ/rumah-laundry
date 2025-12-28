@@ -35,25 +35,15 @@ const columns: ColumnDef<ListInventoryStock>[] = [
 ];
 
 export default function InventoryPage() {
-  const [inventoriesStock, setInventoriesStock] = useState<
-    ListInventoryStock[]
-  >([]);
-
-  const { isSuccess, data } = useQueryData(
+  const { data } = useQueryData(
     ["getInventoriesStock"],
     "/inventories/stock"
   );
 
-  useEffect(() => {
-    if (isSuccess && data?.data) {
-      setInventoriesStock(data.data);
-    }
-  }, [isSuccess, data]);
-
   return (
     <div className="w-full flex flex-col gap-5">
       <div className="w-full">
-        <DataTable columns={columns} data={inventoriesStock} />
+        <DataTable columns={columns} data={data?.data ?? []} />
       </div>
     </div>
   );
