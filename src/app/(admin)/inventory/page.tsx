@@ -13,6 +13,7 @@ import { EditInventoryButton } from "@/components/inventory/edit-inventory";
 import { ManageStockButton } from "@/components/inventory/manage-stock-inventory";
 import { InputSearchDebounce } from "@/components/ui/input-search-debounce";
 import { ExportExcelExpendButton } from "@/components/inventory/export-excel";
+import { DeleteInventoryButton } from "@/components/inventory/delete-inventory";
 
 const columns: ColumnDef<ListInventory>[] = [
   {
@@ -28,7 +29,7 @@ const columns: ColumnDef<ListInventory>[] = [
     cell: ({ row }) => (
       <div className="flex gap-2 items-center">
         <EditInventoryButton values={row.original} />
-        {/* <DeleteInventoryButton id={row.original.id!} /> */}
+        <DeleteInventoryButton id={row.original.id!} /> 
         <ManageStockButton values={row.original} />
       </div>
     ),

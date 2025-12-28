@@ -8,8 +8,9 @@ import {
 import db from "@/db";
 import { inventoryStockTable, inventoryTable } from "@/db/schema";
 import { ResponseErr, ResponseOk } from "@/utils/http";
-import { timeNowUTC } from "@/utils/utils";
-import { desc, eq, like, sql } from "drizzle-orm";
+import { getPayloadJwt, timeNowUTC } from "@/utils/utils";
+import { and, desc, eq, isNull, like, sql } from "drizzle-orm";
+import { DateTime } from "luxon";
 import { NextRequest } from "next/server";
 
 // POST /inventories
@@ -61,7 +62,7 @@ export async function ListInventoriesHandler(req: NextRequest) {
         inventoryStockTable,
         eq(inventoryTable.id, inventoryStockTable.inventory_id)
       )
-      .where(like(inventoryTable.name, name))
+      .where(and(like(inventoryTable.name, name), isNull(inventoryTable.deleted_at)))
       .groupBy(inventoryTable.id);
 
     const listInventories: ListInventoriesResponse = inventories.map((i) => {
@@ -99,7 +100,12 @@ export async function EditInventoryHandler(req: NextRequest, id: string) {
 
 export async function DeleteInventoryHandler(req: NextRequest, id: string) {
   try {
-    await db.delete(inventoryTable).where(eq(inventoryTable.id, Number(id)));
+    const payload = getPayloadJwt(req)
+    const now = DateTime.now().setZone(payload.tz)
+
+    await db.update(inventoryTable).set({
+      deleted_at: now.toJSDate()
+    }).where(eq(inventoryTable.id , Number(id)))
 
     return ResponseOk(null, "sukses menghapus persediaan");
   } catch (error) {

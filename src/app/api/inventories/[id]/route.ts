@@ -13,11 +13,11 @@ export async function PUT(
   return EditInventoryHandler(req, id);
 }
 
-// export async function DELETE(
-//   req: NextRequest,
-//   ctx: RouteContext<"/api/customers/[id]">
-// ) {
-//   const { id } = await ctx.params;
+export async function DELETE(
+  req: NextRequest,
+  ctx: RouteContext<"/api/customers/[id]">
+) {
+  const { id } = await ctx.params;
 
-//   return DeleteInventoryHandler(req, id);
-// }
+  return DeleteInventoryHandler(req, id);
+}
