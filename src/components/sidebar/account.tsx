@@ -39,7 +39,6 @@ export const AccountAdminButton = ({ values }: { values: Admin }) => {
     defaultValues: {
       name: values.name,
       email: values.email,
-      password: "",
     },
   });
 
@@ -126,7 +125,7 @@ export const AccountAdminButton = ({ values }: { values: Admin }) => {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>Password Baru</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="password"

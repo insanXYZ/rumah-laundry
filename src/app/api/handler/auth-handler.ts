@@ -7,6 +7,7 @@ import { CreateToken, DecodeJwt } from "@/utils/jwt";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
+import z, { email } from "zod";
 
 // POST /admins/login
 export const LoginHandler = async (request: NextRequest) => {
@@ -89,18 +90,22 @@ export async function MeHandler(req: NextRequest) {
   }
 }
 
-export async function EditAdminHandler(req: NextRequest, id: string) {
+export async function EditAdminHandler(req: NextRequest, id: string){ 
   try {
     const json = await req.json();
     const body = EditAccountSchema.parse(json);
 
-    await db
-      .update(adminTable)
-      .set({
-        email: body.email,
-        name: body.name,
-        password: bcrypt.hashSync(body.password),
-      })
+    const updateAdmin: z.infer<typeof EditAccountSchema> = {
+      name: body.name,
+      email: body.email,
+    }
+
+    if(body.password){
+      updateAdmin.password = bcrypt.hashSync(body.password)
+    }
+
+      await db.update(adminTable)
+      .set(updateAdmin)
       .where(eq(adminTable.id, Number(id)));
 
     return ResponseOk(null, "sukses merubah akun admin");

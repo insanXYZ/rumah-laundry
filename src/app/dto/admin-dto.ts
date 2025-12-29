@@ -5,7 +5,7 @@ export const LoginRequest = z.object({
     error: "Email tidak valid",
   }),
   password: z.string().min(8, {
-    error: "password minimum 8 character",
+    error: "password minimal 8 karakter",
   }),
   timezone: z
     .string()
@@ -26,9 +26,13 @@ export const LoginRequest = z.object({
 });
 
 export const EditAccountSchema = z.object({
-  name: z.string(),
-  email: z.email(),
+  name: z.string().min(3, {
+    message: "nama minimal 3 karakter"
+  }),
+  email: z.email({
+    error: "Email tidak valid",
+  }),
   password: z.string().min(8, {
     error: "password minimum 8 character",
-  }),
+  }).optional(),
 });
